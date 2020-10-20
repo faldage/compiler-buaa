@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "getToken.h"
+#include "myVar.h"
 
 extern int loc_f_p;
 extern SYMBOL symbol_p;
@@ -60,5 +60,7 @@ void parse_print_sent();
 void parse_return_sent();
 
 void parse();
+
+void myPrint(std::string str);
 
 #endif

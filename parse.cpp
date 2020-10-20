@@ -6,13 +6,19 @@ SYMBOL symbol_p;
 std::ofstream t2("output.txt");
 std::map<std::string, SYMBOL> func_tab;
 
+void myPrint(std::string str){
+    if(1) {
+        t2 << str << std::endl;
+    }
+}
+
 void error_parse(){
-    t2<<"error in parse!"<<std::endl;
+    myPrint("error in parse!");
 }
 void get_next_token(){
     loc_f_p++;
     symbol_p = words[loc_f_p]._symbol;
-    t2<<names[words[loc_f_p - 1]._symbol] << " "<< words[loc_f_p - 1]._name<<std::endl;
+    myPrint(names[words[loc_f_p - 1]._symbol] + " "+ words[loc_f_p - 1]._name);
 }
 
 void parse_plus(){
@@ -38,7 +44,7 @@ void parse_char(){
 void parse_string() {
     if (symbol_p != STRCON)error_parse();
     get_next_token();
-    t2<<"<字符串>"<<std::endl;
+    myPrint("<字符串>");
 }
 void parse_program(){
     //t2<<"parse_program"<<std::endl;
@@ -57,7 +63,7 @@ void parse_program(){
         } else error_parse();
     }
     parse_main();
-    t2<<"<程序>"<<std::endl;
+    myPrint("<程序>");
 }
 void parse_const_explain(){
     //t2<<"parse_const_explain"<<std::endl;
@@ -68,7 +74,7 @@ void parse_const_explain(){
         if(symbol_p != SEMICN)error_parse();
         get_next_token();
     }
-    t2<<"<常量说明>"<<std::endl;
+    myPrint("<常量说明>");
 }
 void parse_const_def(){
     //t2<<"parse_const_def"<<std::endl;
@@ -99,19 +105,19 @@ void parse_const_def(){
             parse_char();
         }
     } else error_parse();
-    t2<<"<常量定义>"<<std::endl;
+    myPrint("<常量定义>");
 }
 void parse_unsigned_int(){
     if(symbol_p != INTCON)error_parse();
     get_next_token();
-    t2<<"<无符号整数>"<<std::endl;
+    myPrint("<无符号整数>");
 }
 void parse_int(){
     if(symbol_p == PLUS || symbol_p == MINU){
         parse_plus();
     }
     parse_unsigned_int();
-    t2<<"<整数>"<<std::endl;
+    myPrint("<整数>");
 }
 void parse_iden(){
     if(symbol_p != IDENFR)error_parse();
@@ -125,7 +131,7 @@ void parse_statement_head(){
 
     func_tab[words[loc_f_p]._name] = temp_type;
     parse_iden();
-    t2<<"<声明头部>"<<std::endl;
+    myPrint("<声明头部>");
 }
 void parse_constant(){
     //t2<<"parse_constant"<<std::endl;
@@ -134,7 +140,7 @@ void parse_constant(){
     } else if(symbol_p == INTCON || ((symbol_p == PLUS || symbol_p == MINU) && (words[loc_f_p + 1]._symbol == INTCON))){
         parse_int();
     }else error_parse();
-    t2<<"<常量>"<<std::endl;
+    myPrint("<常量>");
 }
 void parse_var_explain(){
     //t2<<"parse_var_explain"<<std::endl;
@@ -147,7 +153,7 @@ void parse_var_explain(){
         if (symbol_p != SEMICN)error_parse();
         get_next_token();
     }
-    t2<<"<变量说明>"<<std::endl;
+    myPrint("<变量说明>");
 }
 void parse_var_def(){
     //t2<<"parse_var_def"<<std::endl;
@@ -165,7 +171,7 @@ void parse_var_def(){
     } else {
         parse_var_def_no_initial();
     }
-    t2<<"<变量定义>"<<std::endl;
+    myPrint("<变量定义>");
 }
 void parse_var_def_no_initial(){
     //t2<<"parse_var_def_no_initial"<<std::endl;
@@ -199,7 +205,7 @@ void parse_var_def_no_initial(){
             get_next_token();
         }
     }
-    t2<<"<变量定义无初始化>"<<std::endl;
+    myPrint("<变量定义无初始化>");
 }
 void parse_var_def_and_initial(){
     //t2<<"parse_var_def_and_initial"<<std::endl;
@@ -265,7 +271,7 @@ void parse_var_def_and_initial(){
         get_next_token();
         parse_constant();
     }
-    t2<<"<变量定义及初始化>"<<std::endl;
+    myPrint("<变量定义及初始化>");
 }
 void parse_type_iden(){
     if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
@@ -289,7 +295,7 @@ void parse_func_with_return_def(){
 
     if(symbol_p != RBRACE)error_parse();
     get_next_token();
-    t2<<"<有返回值函数定义>"<<std::endl;
+    myPrint("<有返回值函数定义>");
 }
 void parse_func_no_return_def(){
     if(symbol_p != VOIDTK)error_parse();
@@ -313,7 +319,7 @@ void parse_func_no_return_def(){
 
     if(symbol_p != RBRACE)error_parse();
     get_next_token();
-    t2<<"<无返回值函数定义>"<<std::endl;
+    myPrint("<无返回值函数定义>");
 }
 void parse_compound_sent(){
     if(symbol_p == CONSTTK){
@@ -323,7 +329,7 @@ void parse_compound_sent(){
         parse_var_explain();
     }
     parse_sent_col();
-    t2<<"<复合语句>"<<std::endl;
+    myPrint("<复合语句>");
 }
 void parse_para_tab(){
     if(symbol_p != RPARENT) {
@@ -335,7 +341,7 @@ void parse_para_tab(){
             parse_iden();
         }
     }
-    t2<<"<参数表>"<<std::endl;
+    myPrint("<参数表>");
 }
 void parse_main(){
     if(symbol_p != VOIDTK)error_parse();
@@ -354,8 +360,8 @@ void parse_main(){
     parse_compound_sent();
 
     if(symbol_p != RBRACE)error_parse();
-    t2<<names[words[loc_f_p]._symbol] << " "<< words[loc_f_p]._name<<std::endl;
-    t2<<"<主函数>"<<std::endl;
+    myPrint(names[words[loc_f_p]._symbol] + " " + words[loc_f_p]._name);
+    myPrint("<主函数>");
 }
 void parse_expression(){
     if(symbol_p == PLUS || symbol_p == MINU){
@@ -366,7 +372,7 @@ void parse_expression(){
         get_next_token();
         parse_item();
     }
-    t2<<"<表达式>"<<std::endl;
+    myPrint("<表达式>");
 }
 void parse_item(){
     parse_factor();
@@ -374,7 +380,7 @@ void parse_item(){
         get_next_token();
         parse_factor();
     }
-    t2<<"<项>"<<std::endl;
+    myPrint("<项>");
 }
 void parse_factor(){
     if(symbol_p == INTCON || ((symbol_p == PLUS || symbol_p == MINU) &&words[loc_f_p + 1]._symbol == INTCON)){//++1
@@ -405,7 +411,7 @@ void parse_factor(){
             get_next_token();
         }
     } else error_parse();
-    t2<<"<因子>"<<std::endl;
+    myPrint("<因子>");
 }
 void parse_sent(){
     if(symbol_p == WHILETK || symbol_p == FORTK)parse_loop_sent();
@@ -447,7 +453,7 @@ void parse_sent(){
         get_next_token();
     }
     else error_parse();
-    t2<<"<语句>"<<std::endl;
+    myPrint("<语句>");
 }
 void parse_assign_sent(){
     parse_iden();
@@ -472,7 +478,7 @@ void parse_assign_sent(){
             parse_expression();
         } else error_parse();
     } else error_parse();
-    t2<<"<赋值语句>"<<std::endl;
+    myPrint("<赋值语句>");
 }
 void parse_cond_sent(){
     //t2<<"parse_cond_sent"<<std::endl;
@@ -489,14 +495,14 @@ void parse_cond_sent(){
         get_next_token();
         parse_sent();
     }
-    t2<<"<条件语句>"<<std::endl;
+    myPrint("<条件语句>");
 }
 void parse_condition(){
     //t2<<"parse_condition"<<std::endl;
     parse_expression();
     parse_relation();
     parse_expression();
-    t2<<"<条件>"<<std::endl;
+    myPrint("<条件>");
 }
 void parse_loop_sent() {
     if (symbol_p == WHILETK) {
@@ -530,11 +536,11 @@ void parse_loop_sent() {
         get_next_token();
         parse_sent();
     } else error_parse();
-    t2<<"<循环语句>"<<std::endl;
+    myPrint("<循环语句>");
 }
 void parse_step_length(){
     parse_unsigned_int();
-    t2<<"<步长>"<<std::endl;
+    myPrint("<步长>");
 }
 void parse_case_sent(){
     if(symbol_p != SWITCHTK)error_parse();
@@ -556,7 +562,7 @@ void parse_case_sent(){
 
     if(symbol_p != RBRACE)error_parse();
     get_next_token();
-    t2<<"<情况语句>"<<std::endl;
+    myPrint("<情况语句>");
 }
 void parse_case_tab(){
     if(symbol_p != CASETK)error_parse();
@@ -565,7 +571,7 @@ void parse_case_tab(){
     while(symbol_p == CASETK){
         parse_case_sub_sent();
     }
-    t2<<"<情况表>"<<std::endl;
+    myPrint("<情况表>");
 }
 void parse_case_sub_sent(){
     if(symbol_p != CASETK)error_parse();
@@ -577,7 +583,7 @@ void parse_case_sub_sent(){
     get_next_token();
 
     parse_sent();
-    t2<<"<情况子语句>"<<std::endl;
+    myPrint("<情况子语句>");
 }
 void parse_default(){
     if(symbol_p != DEFAULTTK)error_parse();
@@ -587,7 +593,7 @@ void parse_default(){
     get_next_token();
 
     parse_sent();
-    t2<<"<缺省>"<<std::endl;
+    myPrint("<缺省>");
 }
 void parse_func_call_with_return(){
     parse_iden();
@@ -598,7 +604,7 @@ void parse_func_call_with_return(){
 
     if(symbol_p != RPARENT)error_parse();
     get_next_token();
-    t2<<"<有返回值函数调用语句>"<<std::endl;
+    myPrint("<有返回值函数调用语句>");
 }
 void parse_func_call_no_return(){
     parse_iden();
@@ -609,7 +615,7 @@ void parse_func_call_no_return(){
 
     if(symbol_p != RPARENT)error_parse();
     get_next_token();
-    t2<<"<无返回值函数调用语句>"<<std::endl;
+    myPrint("<无返回值函数调用语句>");
 }
 void parse_val_para_tab(){
     if(symbol_p != RPARENT){
@@ -619,13 +625,13 @@ void parse_val_para_tab(){
             parse_expression();
         }
     }
-    t2<<"<值参数表>"<<std::endl;
+    myPrint("<值参数表>");
 }
 void parse_sent_col(){
     while(symbol_p != RBRACE){
         parse_sent();
     }
-    t2<<"<语句列>"<<std::endl;
+    myPrint("<语句列>");
 }
 void parse_read_sent(){
     if(symbol_p != SCANFTK)error_parse();
@@ -638,7 +644,7 @@ void parse_read_sent(){
 
     if(symbol_p != RPARENT)error_parse();
     get_next_token();
-    t2<<"<读语句>"<<std::endl;
+    myPrint("<读语句>");
 }
 void parse_print_sent(){
     if(symbol_p != PRINTFTK)error_parse();
@@ -658,7 +664,7 @@ void parse_print_sent(){
     }
     if(symbol_p != RPARENT)error_parse();
     get_next_token();
-    t2<<"<写语句>"<<std::endl;
+    myPrint("<写语句>");
 }
 void parse_return_sent(){
     if(symbol_p != RETURNTK)error_parse();
@@ -670,7 +676,7 @@ void parse_return_sent(){
         if(symbol_p != RPARENT)error_parse();
         get_next_token();
     }
-    t2<<"<返回语句>"<<std::endl;
+    myPrint("<返回语句>");
 }
 
 void parse(){

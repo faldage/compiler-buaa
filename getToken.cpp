@@ -3,15 +3,14 @@
 #include <string>
 #include <algorithm>
 #include "getToken.h"
-
-std::string names[50];
-std::vector<Word>words;
+#include "myVar.h"
 
 char* ch;
 char myCh;
 std::string token;
 
 int num;
+int line;
 
 void clearToken(){
     token = "";
@@ -159,6 +158,9 @@ void system(){
     clearToken();
     Word newWord = Word();
     while(isSpace() || isNewLine() || isTab() || myCh == '\r'){
+        if(isNewLine()){
+            line++;
+        }
         getChar();
     }
     if(myCh == '\0'){
@@ -173,21 +175,21 @@ void system(){
         retract();
         std::string temp = token;
         SYMBOL symbol = reserver();
-        newWord.getNewWord(temp, symbol);
+        newWord.getNewWord(temp, symbol, line);
     }else if(myCh ==  '_'){
         while(isLetter() || isDigit() || myCh == '_'){
             catToken();
             getChar();
         }
         retract();
-        newWord.getNewWord(token, IDENFR);
+        newWord.getNewWord(token, IDENFR, line);
     }else if(isDigit()){
         while(isDigit()){
             catToken();
             getChar();
         }
         retract();
-        newWord.getNewWord(token, INTCON);
+        newWord.getNewWord(token, INTCON, line);
     }else if(isCharCon()){
         getChar();
         catToken();
@@ -195,7 +197,7 @@ void system(){
         if(!isCharCon()){
             error();
         }
-        newWord.getNewWord(token, CHARCON);
+        newWord.getNewWord(token, CHARCON, line);
     }else if(isStrCon()){
         getChar();
         while(!isStrCon() && myCh >= 32 && myCh <= 126){
@@ -205,65 +207,65 @@ void system(){
         if(!isStrCon()){
             error();
         }
-        newWord.getNewWord(token, STRCON);
+        newWord.getNewWord(token, STRCON, line);
     }else if (isPlus()){
-        newWord.getNewWord("+", PLUS);
+        newWord.getNewWord("+", PLUS, line);
     }else if (isMinu()){
-        newWord.getNewWord("-", MINU);
+        newWord.getNewWord("-", MINU, line);
     }else if (isMult()){
-        newWord.getNewWord("*", MULT);
+        newWord.getNewWord("*", MULT, line);
     }else if (isDiv()){
-        newWord.getNewWord("/", DIV);
+        newWord.getNewWord("/", DIV, line);
     }else if (isLss()){
         getChar();
         if(isEql()) {
-            newWord.getNewWord("<=", LEQ);
+            newWord.getNewWord("<=", LEQ, line);
         } else {
             retract();
-            newWord.getNewWord("<", LSS);
+            newWord.getNewWord("<", LSS, line);
         }
     }else if (isGre()){
         getChar();
         if(isEql()) {
-            newWord.getNewWord(">=", GEQ);
+            newWord.getNewWord(">=", GEQ, line);
         } else {
             retract();
-            newWord.getNewWord(">", GRE);
+            newWord.getNewWord(">", GRE, line);
         }
     }else if (isEql()){
         getChar();
         if(isEql()) {
-            newWord.getNewWord("==", EQL);
+            newWord.getNewWord("==", EQL, line);
         } else {
             retract();
-            newWord.getNewWord("=", ASSIGN);
+            newWord.getNewWord("=", ASSIGN, line);
         }
     }else if(isNeq()){
         getChar();
         if(isEql()) {
-            newWord.getNewWord("!=", NEQ);
+            newWord.getNewWord("!=", NEQ, line);
         } else {
             retract();
             error();
         }
     }else if(isColon()){
-        newWord.getNewWord(":", COLON);
+        newWord.getNewWord(":", COLON, line);
     }else if(isSemicn()){
-        newWord.getNewWord(";", SEMICN);
+        newWord.getNewWord(";", SEMICN, line);
     }else if(isComma()){
-        newWord.getNewWord(",", COMMA);
+        newWord.getNewWord(",", COMMA, line);
     }else if(isLparent()){
-        newWord.getNewWord("(", LPARENT);
+        newWord.getNewWord("(", LPARENT, line);
     }else if(isRparent()){
-        newWord.getNewWord(")", RPARENT);
+        newWord.getNewWord(")", RPARENT, line);
     }else if(isLBRACK()){
-        newWord.getNewWord("[", LBRACK);
+        newWord.getNewWord("[", LBRACK, line);
     }else if(isRBRACK()){
-        newWord.getNewWord("]", RBRACK);
+        newWord.getNewWord("]", RBRACK, line);
     }else if(isLBRACE()){
-        newWord.getNewWord("{", LBRACE);
+        newWord.getNewWord("{", LBRACE, line);
     }else if(isRBRACE()){
-        newWord.getNewWord("}", RBRACE);
+        newWord.getNewWord("}", RBRACE, line);
     }else{
         error();
     }

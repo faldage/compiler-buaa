@@ -6,38 +6,15 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
-
-enum SYMBOL{
-    IDENFR = 1, INTCON, CHARCON, STRCON, CONSTTK, INTTK, CHARTK,
-    VOIDTK, MAINTK, IFTK, ELSETK, SWITCHTK, CASETK, DEFAULTTK, WHILETK,
-    FORTK, SCANFTK, PRINTFTK, RETURNTK, PLUS, MINU, MULT, DIV, LSS, LEQ,
-    GRE, GEQ, EQL, NEQ, COLON, ASSIGN, SEMICN, COMMA, LPARENT, RPARENT,
-    LBRACK, RBRACK, LBRACE, RBRACE
-};
-extern std::string names[50];
-
-class Word{
-public:
-    std::string _name;
-    SYMBOL _symbol;
-    Word(){};
-    Word(std::string name, SYMBOL symbol){
-        _name = name;
-        _symbol = symbol;
-    }
-    void getNewWord(std::string name, SYMBOL symbol){
-        _name = name;
-        _symbol = symbol;
-    }
-};
-
-extern std::vector<Word>words;
+#include "myVar.h"
 
 extern char* ch;
 extern char myCh;
 extern std::string token;
 
 extern int num;
+extern int line;
+
 
 void clearToken();
 void retract();
