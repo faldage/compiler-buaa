@@ -9,6 +9,12 @@
 
 using namespace std;
 
+void error_print(){
+    for(Error error: errors){
+        output <<error._line<<" " << error._error_type << std::endl;
+    }
+}
+
 int main() {
     initial();
     std::ifstream t("testfile.txt");
@@ -25,5 +31,6 @@ int main() {
     //    t2<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
     //}
     parse();
+    error_print();
     return 0;
 }

@@ -6,6 +6,8 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
+#include <map>
+#include <stack>
 
 
 enum SYMBOL{
@@ -14,6 +16,10 @@ enum SYMBOL{
     FORTK, SCANFTK, PRINTFTK, RETURNTK, PLUS, MINU, MULT, DIV, LSS, LEQ,
     GRE, GEQ, EQL, NEQ, COLON, ASSIGN, SEMICN, COMMA, LPARENT, RPARENT,
     LBRACK, RBRACK, LBRACE, RBRACE
+};
+
+enum SIG_SYM{
+    INT = 1, CHAR, FUNC_WITH_RETURN, FUNC_NO_RETURN, CONST_INT, CONST_CHAR,NONETYPE
 };
 
 class Word{
@@ -41,38 +47,71 @@ class Error{
 public:
     std::string _error_type;
     int _line;
+    std::string _info;
+
     Error(){
         _error_type = "";
         _line = 0;
+        _info = "";
     };
     Error(std::string error_type, int line){
         _error_type = error_type;
         _line = line;
+    }
+    Error(std::string error_type, int line, std::string info){
+        _error_type = error_type;
+        _line = line;
+        _info = info;
     }
 };
 
 class Signal{
 public:
     std::string _name;
-    std::string _type;
-    int _layer;
+    SIG_SYM _type;
+    int _line;
+
+    //var
+    int _dem;
+    int _dem_num1;
+    int _dem_num2;
+
+    //func
+    std::vector<SIG_SYM> _para_tab;
+    SIG_SYM _returnType;
 
     Signal(){
         _name = "";
-        _type = "";
-        _layer = 0;
+        _type = NONETYPE;
     };
-    Signal(std::string name, std::string type, int layer){
+
+    Signal(std::string name){
+        _name = name;
+        _type = NONETYPE;
+    }
+
+    Signal(std::string name, SIG_SYM type){
         _name = name;
         _type = type;
-        _layer = layer;
+    }
+
+    void func_addPara(SIG_SYM sigSym){
+        _para_tab.push_back(sigSym);
     }
 };
+
+
+int transNum(std::string str);
 
 extern std::string names[50];
 
 extern std::vector<Word>words;
 
 extern std::vector<Error>errors;
-extern std::vector<Signal>sig_tab;
+
+extern std::map<std::string, Signal>globalSigTab;
+extern std::map<std::string, Signal>funcSigTab;
+
+extern std::ofstream output;
+
 #endif

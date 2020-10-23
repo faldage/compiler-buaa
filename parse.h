@@ -4,12 +4,21 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <stack>
 #include "myVar.h"
 
 extern int loc_f_p;
 extern SYMBOL symbol_p;
-extern std::ofstream t2;
+extern std::string name_p;
+extern int line_p;
 extern std::map<std::string, SYMBOL> func_tab;
+extern Signal newSig;
+extern bool isGlobal;
+extern std::string func_name;
+extern std::stack<std::string> call_func_name;
+extern bool hasReturn;//in def for func has return
+
+extern SIG_SYM prev_type;
 
 void error_parse();
 void get_next_token();
@@ -23,11 +32,11 @@ void parse_string();
 void parse_program();
 void parse_const_explain();
 void parse_const_def();
-void parse_unsigned_int();
+int parse_unsigned_int();
 void parse_int();
 void parse_iden();
 void parse_statement_head();
-void parse_constant();
+SIG_SYM parse_constant();
 void parse_var_explain();
 void parse_var_def();
 void parse_var_def_no_initial();
@@ -38,9 +47,9 @@ void parse_func_no_return_def();
 void parse_compound_sent();
 void parse_para_tab();
 void parse_main();
-void parse_expression();
-void parse_item();
-void parse_factor();
+SIG_SYM parse_expression();
+SIG_SYM parse_item();
+SIG_SYM parse_factor();
 void parse_sent();
 void parse_assign_sent();
 void parse_cond_sent();
@@ -48,11 +57,11 @@ void parse_condition();
 void parse_loop_sent();
 void parse_step_length();
 void parse_case_sent();
-void parse_case_tab();
-void parse_case_sub_sent();
+void parse_case_tab(SIG_SYM sig_sym);
+void parse_case_sub_sent(SIG_SYM sig_sym);
 void parse_default();
-void parse_func_call_with_return();
-void parse_func_call_no_return();
+SIG_SYM parse_func_call_with_return();
+SIG_SYM parse_func_call_no_return();
 void parse_val_para_tab();
 void parse_sent_col();
 void parse_read_sent();

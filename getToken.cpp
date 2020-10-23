@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <vector>
 #include "getToken.h"
 #include "myVar.h"
 
@@ -65,15 +66,7 @@ SYMBOL reserver() {
     }
 }
 
-int transNum() {
-    int res = 0;
-    int i;
-    int length = token.length();
-    for(i = 0; i < length; i++){
-        res = res * 10 + (token[i] - '0');
-    }
-    return res;
-}
+
 void error(){
     std::cout<<myCh<<std::endl;
     std::cout<<*ch<<std::endl;
@@ -193,20 +186,41 @@ void system(){
     }else if(isCharCon()){
         getChar();
         catToken();
+        if (myCh == '_' || (myCh >= 'a' && myCh <= 'z')||
+            (myCh >= 'A' && myCh <= 'Z') || myCh == '+' || myCh == '-'
+            || myCh == '*' || myCh == '/'||(myCh >= '0' && myCh <= '9')){
+            ;
+        }else{
+            errors.push_back(Error("a",line));
+        }
         getChar();
         if(!isCharCon()){
             error();
-        }
+        }//not exist???
         newWord.getNewWord(token, CHARCON, line);
     }else if(isStrCon()){
         getChar();
-        while(!isStrCon() && myCh >= 32 && myCh <= 126){
-            catToken();
-            getChar();
+        //while(!isStrCon() && myCh >= 32 && myCh <= 126){
+        //    catToken();
+        //    getChar();
+        //}
+        if(isStrCon()){
+            errors.push_back(Error("a", line));
+        } else {
+            while(true){
+                if(isStrCon())break;
+                else{
+                    if(myCh < 32 || myCh > 126){
+                        errors.push_back(Error("a", line));
+                    }
+                    catToken();
+                    getChar();
+                }
+            }
         }
-        if(!isStrCon()){
-            error();
-        }
+        //if(!isStrCon()){
+        //    error();
+        //}
         newWord.getNewWord(token, STRCON, line);
     }else if (isPlus()){
         newWord.getNewWord("+", PLUS, line);
@@ -267,7 +281,9 @@ void system(){
     }else if(isRBRACE()){
         newWord.getNewWord("}", RBRACE, line);
     }else{
-        error();
+        //error();
+        errors.push_back(Error("a", line));
+        return;
     }
 
     words.push_back(newWord);

@@ -25,7 +25,6 @@ void getChar();
 
 SYMBOL reserver();
 
-int transNum();
 void error();
 
 bool isSpace();
