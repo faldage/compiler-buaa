@@ -171,7 +171,7 @@ void parse_const_explain(){
         get_next_token();
         parse_const_def();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -275,7 +275,7 @@ void parse_var_explain(){
     //t2<<"parse_var_explain"<<std::endl;
     parse_var_def();
     if(symbol_p != SEMICN) {
-        addError("k", line_p);
+        addError("k", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -283,7 +283,7 @@ void parse_var_explain(){
           && words[loc_f_p + 2]._symbol != LPARENT){
         parse_var_def();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -327,7 +327,7 @@ void parse_var_def_no_initial(){
         get_next_token();
         parse_unsigned_int();
         if(symbol_p != RBRACK) {
-            addError("m", line_p);
+            addError("m", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -337,7 +337,7 @@ void parse_var_def_no_initial(){
         get_next_token();
         parse_unsigned_int();
         if(symbol_p != RBRACK) {
-            addError("m", line_p);
+            addError("m", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -353,7 +353,7 @@ void parse_var_def_no_initial(){
             get_next_token();
             parse_unsigned_int();
             if(symbol_p != RBRACK) {
-                addError("m", line_p);
+                addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
@@ -363,7 +363,7 @@ void parse_var_def_no_initial(){
             get_next_token();
             parse_unsigned_int();
             if(symbol_p != RBRACK) {
-                addError("m", line_p);
+                addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
@@ -388,7 +388,7 @@ void parse_var_def_and_initial(){
         get_next_token();
         newSig._dem_num1 = parse_unsigned_int();
         if(symbol_p != RBRACK) {
-            addError("m", line_p);
+            addError("m", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -398,7 +398,7 @@ void parse_var_def_and_initial(){
             get_next_token();
             newSig._dem_num2 = parse_unsigned_int();
             if(symbol_p != RBRACK) {
-                addError("m", line_p);
+                addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
@@ -516,7 +516,7 @@ void parse_func_with_return_def(){
     parse_para_tab();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -556,7 +556,7 @@ void parse_func_no_return_def(){
     parse_para_tab();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -632,7 +632,7 @@ void parse_main(){
     if(symbol_p != LPARENT)error_parse();
     get_next_token();
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l",words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -687,7 +687,7 @@ SIG_SYM parse_factor(){
         get_next_token();
         res = parse_expression();
         if(symbol_p != RPARENT) {
-            addError("l", line_p);
+            addError("l", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -706,7 +706,7 @@ SIG_SYM parse_factor(){
                 addError("i", line_p);
             }
             if(symbol_p != RBRACK) {
-                addError("m", line_p);
+                addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
@@ -716,7 +716,7 @@ SIG_SYM parse_factor(){
                     addError("i", line_p);
                 }
                 if(symbol_p != RBRACK) {
-                    addError("m", line_p);
+                    addError("m", words[loc_f_p - 1]._line);
                 } else {
                     get_next_token();
                 }
@@ -742,7 +742,7 @@ void parse_sent(){
         else parse_assign_sent();
 
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -750,7 +750,7 @@ void parse_sent(){
     else if(symbol_p == SCANFTK){
         parse_read_sent();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -758,7 +758,7 @@ void parse_sent(){
     else if(symbol_p == PRINTFTK){
         parse_print_sent();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -770,7 +770,7 @@ void parse_sent(){
     else if(symbol_p == RETURNTK){
         parse_return_sent();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -804,7 +804,7 @@ void parse_assign_sent(){
             addError("i", line_p);
         }
         if(symbol_p != RBRACK) {
-            addError("m", line_p);
+            addError("m", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -814,7 +814,7 @@ void parse_assign_sent(){
                 addError("i", line_p);
             }
             if(symbol_p != RBRACK) {
-                addError("m", line_p);
+                addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
@@ -836,7 +836,7 @@ void parse_cond_sent(){
     get_next_token();
     parse_condition();
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -865,7 +865,7 @@ void parse_loop_sent() {
         get_next_token();
         parse_condition();
         if(symbol_p != RPARENT) {
-            addError("l", line_p);
+            addError("l", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -879,13 +879,13 @@ void parse_loop_sent() {
         get_next_token();
         parse_expression();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
         parse_condition();
         if(symbol_p != SEMICN) {
-            addError("k", line_p);
+            addError("k", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -896,7 +896,7 @@ void parse_loop_sent() {
         parse_plus();
         parse_step_length();
         if(symbol_p != RPARENT) {
-            addError("l", line_p);
+            addError("l", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
@@ -918,7 +918,7 @@ void parse_case_sent(){
     SIG_SYM temp = parse_expression();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -978,7 +978,7 @@ SIG_SYM parse_func_call_with_return(){
     parse_val_para_tab();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -996,7 +996,7 @@ SIG_SYM parse_func_call_no_return(){
     parse_val_para_tab();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -1058,7 +1058,7 @@ void parse_read_sent(){
     parse_iden();
 
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -1081,7 +1081,7 @@ void parse_print_sent(){
         parse_expression();
     }
     if(symbol_p != RPARENT) {
-        addError("l", line_p);
+        addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
@@ -1106,7 +1106,7 @@ void parse_return_sent(){
         }
 
         if(symbol_p != RPARENT) {
-            addError("l", line_p);
+            addError("l", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
