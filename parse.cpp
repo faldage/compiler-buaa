@@ -164,6 +164,8 @@ void parse_sent(){
     myPrint("<语句>");
 }
 void parse_assign_sent(){
+     newIntermediateCode._interSym = I_ASSIGN;
+
     if(globalSigTab.count(myTolower(name_p)) != 0 &&
         (globalSigTab[myTolower(name_p)]._type == CONST_INT
             || globalSigTab[myTolower(name_p)]._type == CONST_CHAR)){
@@ -173,10 +175,31 @@ void parse_assign_sent(){
                || funcSigTab[myTolower(name_p)]._type == CONST_CHAR)){
         addError("j", line_p);
     }
+
+    if(globalSigTab.count(myTolower(name_p)) != 0){
+        if(globalSigTab[myTolower(name_p)]._type == INT){
+            newIntermediateCode._assType = INT;
+        } else {
+            newIntermediateCode._assType = CHAR;
+        }
+    } else if(funcSigTab.count(myTolower(name_p)) != 0){
+        if(funcSigTab[myTolower(name_p)]._type == INT){
+            newIntermediateCode._assType = INT;
+        } else {
+            newIntermediateCode._assType = CHAR;
+        }
+    }
+
+    newIntermediateCode._assName = name_p;
     parse_iden();
     if(symbol_p == ASSIGN){
         get_next_token();
+        ICodesStack.push(newIntermediateCode);
+        newIntermediateCode = IntermediateCode();//??????????????????
         parse_expression();
+        newIntermediateCode = ICodesStack.top();
+        ICodesStack.pop();
+        addToICodes();
     } else if(symbol_p == LBRACK){
         get_next_token();
         SIG_SYM temp = parse_expression();
@@ -357,6 +380,7 @@ void parse_sent_col(){
     myPrint("<语句列>");
 }
 void parse_read_sent(){
+    newIntermediateCode._interSym = I_SCANF;
     if(symbol_p != SCANFTK)error_parse();
     get_next_token();
 
@@ -372,6 +396,21 @@ void parse_read_sent(){
                || funcSigTab[myTolower(name_p)]._type == CONST_CHAR)){
         addError("j", line_p);
     }
+    newIntermediateCode._scName = name_p;
+    if(globalSigTab.count(myTolower(name_p)) != 0){
+        if(globalSigTab[myTolower(name_p)]._type == INT){
+            newIntermediateCode._scType = INT;
+        } else {
+            newIntermediateCode._scType = CHAR;
+        }
+    } else if(funcSigTab.count(myTolower(name_p)) != 0){
+        if(funcSigTab[myTolower(name_p)]._type == INT){
+            newIntermediateCode._scType = INT;
+        } else {
+            newIntermediateCode._scType = CHAR;
+        }
+    }
+    addToICodes();
     parse_iden();
 
     if(symbol_p != RPARENT) {
@@ -389,14 +428,25 @@ void parse_print_sent(){
     get_next_token();
 
     if(symbol_p == STRCON){
+        newIntermediateCode._interSym = I_PRINTF;
+        newIntermediateCode._symProperty = 1;
+        newIntermediateCode._priStr = name_p;
         parse_string();
+        addToICodes();
         if(symbol_p == COMMA){
             get_next_token();
             parse_expression();
+            newIntermediateCode._interSym = I_PRINTF;
+            newIntermediateCode._symProperty = 2;
+            addToICodes();
         }
     }else{
         parse_expression();
+        newIntermediateCode._interSym = I_PRINTF;
+        newIntermediateCode._symProperty = 2;
+        addToICodes();
     }
+
     if(symbol_p != RPARENT) {
         addError("l", words[loc_f_p - 1]._line);
     } else {

@@ -18,7 +18,7 @@ int transNum(std::string str) {
 }
 
 std::string myTolower(std::string myStr){
-    std::string temp = myStr;
+    std::string temp = myStr; //NOLINT
     transform(temp.begin(),temp.end(),temp.begin(),::tolower);
     return temp;
 }
@@ -28,16 +28,20 @@ std::vector<Error>errors;
 std::map<std::string, Signal>globalSigTab;
 std::map<std::string, Signal>funcSigTab;
 
-std::ofstream output_error("error.txt");
+std::ofstream output_error("error.txt");//NOLINT
+
+std::vector<IntermediateCode> intermediateCodes;
 
 //in parse
 int loc_f_p;
 SYMBOL symbol_p;
 std::string name_p;
 int line_p;
-Signal newSig = Signal();
+Signal newSig = Signal();//NOLINT
 SIG_SYM prev_type;
 bool isGlobal = true;
 std::string func_name;//def
-std::stack<std::string> call_func_name;
+std::stack<std::string> call_func_name;//NOLINT
 bool hasReturn = false;
+IntermediateCode newIntermediateCode;//NOLINT
+std::stack<IntermediateCode> ICodesStack;//NOLINT

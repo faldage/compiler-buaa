@@ -23,29 +23,39 @@ void parse_const_explain(){
     myPrint("<常量说明>");
 }
 void parse_const_def(){
+    newIntermediateCode._interSym = I_CON;
     //t2<<"parse_const_def"<<std::endl;
     if(symbol_p == INTTK){
         newSig._type = CONST_INT;
         prev_type = CONST_INT;
         newSig._line = line_p;
 
+        newIntermediateCode._vcType = INT;
+
         get_next_token();
+
+        newIntermediateCode._name = name_p;
+
         parse_new_iden();
         if(symbol_p != ASSIGN)error_parse();
         get_next_token();
-        parse_int();
 
+        newIntermediateCode._intValue = parse_int();
+        addToICodes();
         addToTab();
+
         while(symbol_p == COMMA){
             newSig._type = CONST_INT;
             newSig._line = line_p;
 
             get_next_token();
+            newIntermediateCode._name = name_p;
             parse_new_iden();
             if(symbol_p != ASSIGN)error_parse();
             get_next_token();
-            parse_int();
+            newIntermediateCode._intValue = parse_int();
 
+            addToICodes();
             addToTab();
         }
     } else if(symbol_p == CHARTK){
@@ -53,11 +63,18 @@ void parse_const_def(){
         prev_type = CONST_CHAR;
         newSig._line = line_p;
 
+        newIntermediateCode._interSym = I_CON;
+        newIntermediateCode._vcType = CHAR;
+
         get_next_token();
+
+        newIntermediateCode._name = name_p;
+
         parse_new_iden();
         if(symbol_p != ASSIGN)error_parse();
         get_next_token();
-        parse_char();
+        newIntermediateCode._chValue = parse_char();
+        addToICodes();
 
         addToTab();
         while(symbol_p == COMMA){
@@ -65,11 +82,12 @@ void parse_const_def(){
             newSig._line = line_p;
 
             get_next_token();
+            newIntermediateCode._name = name_p;
             parse_new_iden();
             if(symbol_p != ASSIGN)error_parse();
             get_next_token();
-            parse_char();
-
+            newIntermediateCode._chValue = parse_char();
+            addToICodes();
             addToTab();
         }
     } else error_parse();
@@ -96,6 +114,7 @@ void parse_var_explain(){
     myPrint("<变量说明>");
 }
 void parse_var_def(){
+    newIntermediateCode._interSym = I_VAR;
     //t2<<"parse_var_def"<<std::endl;
     int initial = 0;
     int i = loc_f_p;
@@ -119,13 +138,17 @@ void parse_var_def_no_initial(){
     if(symbol_p == INTTK){
         newSig._type = INT;
         prev_type = INT;
+        newIntermediateCode._vcType = INT;
     }else {
         newSig._type = CHAR;
         prev_type = CHAR;
+        newIntermediateCode._vcType = CHAR;
     }
     get_next_token();
 
     newSig._line = line_p;
+
+    newIntermediateCode._name = name_p;
     parse_new_iden();
     if(symbol_p == LBRACK){
         newSig._dem = 1;
@@ -147,11 +170,14 @@ void parse_var_def_no_initial(){
             get_next_token();
         }
     }
+    addToICodes();
     addToTab();
     while(symbol_p == COMMA){
         newSig._type = prev_type;
         newSig._line = line_p;
         get_next_token();
+
+        newIntermediateCode._name = name_p;
         parse_new_iden();
         if(symbol_p == LBRACK){
             newSig._dem = 1;
@@ -173,6 +199,7 @@ void parse_var_def_no_initial(){
                 get_next_token();
             }
         }
+        addToICodes();
         addToTab();
     }
     myPrint("<变量定义无初始化>");
@@ -181,12 +208,18 @@ void parse_var_def_and_initial(){
     //t2<<"parse_var_def_and_initial"<<std::endl;
     //parse_type_iden();
     if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
-    if(symbol_p == INTTK)newSig._type = INT;
-    else newSig._type = CHAR;
+    if(symbol_p == INTTK){
+        newSig._type = INT;
+        newIntermediateCode._vcType = INT;
+    } else {
+        newSig._type = CHAR;
+        newIntermediateCode._vcType = CHAR;
+    }
     get_next_token();
 
     newSig._line = line_p;
 
+    newIntermediateCode._name = name_p;
     parse_new_iden();
     if(symbol_p == LBRACK){
         newSig._dem = 1;
@@ -296,6 +329,7 @@ void parse_var_def_and_initial(){
             addError("o", line_p);
         }
     }
+    addToICodes();
     addToTab();
     myPrint("<变量定义及初始化>");
 }

@@ -7,9 +7,9 @@
 #include <stack>
 #include "myVar.h"
 
+void addToICodes();
 bool isSameType1(SIG_SYM sig1, SIG_SYM sig2);
 
-std::string myTolower(std::string myStr);
 void clearSig();
 void addError(std::string error_type, int temp_line);
 
@@ -30,13 +30,13 @@ void parse_plus();
 void parse_mult();
 void parse_relation();
 void parse_num();
-void parse_char();
+char parse_char();
 void parse_string();
 void parse_program();
 void parse_const_explain();
 void parse_const_def();
 int parse_unsigned_int();
-void parse_int();
+int parse_int();
 
 void parse_statement_head();
 SIG_SYM parse_constant();

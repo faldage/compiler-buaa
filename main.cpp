@@ -15,6 +15,42 @@ void error_print(){
     }
 }
 
+void printINTER(){
+    for(IntermediateCode i : intermediateCodes){
+        if(i._interSym == I_CON){
+            std::cout<<"CON ";
+            if(i._vcType == INT){
+                std::cout<<"INT "<<i._name<<" " << i._intValue<<endl;
+            } else if(i._vcType == CHAR){
+                std::cout<<"CHAR "<<i._name<<" "<<i._chValue<<endl;
+            }
+        }  else if(i._interSym == I_VAR){
+            std::cout<<"VAR ";
+            if(i._vcType == INT){
+                std::cout<<"INT "<<i._name<<i._intValue<<endl;
+            } else if(i._vcType == CHAR){
+                std::cout<<"CHAR "<<i._name<<i._chValue<<endl;
+            }
+        } else if(i._interSym == I_SCANF){
+            std::cout<<"SCANF "<<i._scName;
+            if(i._scType == INT){
+                std::cout<<" INT"<<endl;
+            } else if(i._scType == CHAR){
+                std::cout<<" CHAR"<<endl;
+            }
+        } else if(i._interSym == I_PRINTF){
+            std::cout<<"PRINTF ";
+            if(i._symProperty == 1){
+                std::cout<<i._priStr<<endl;
+            } else {
+                std::cout<<"exp"<<endl;
+            }
+        } else if(i._interSym == I_ASSIGN){
+            std::cout<<"ASSIGN "<<i._assName<<endl;
+        }
+    }
+}
+
 int main() {
     initial();
     std::ifstream t("testfile.txt");
@@ -35,7 +71,7 @@ int main() {
     if(errors.size() != 0){
         printf("some errors!\n");
     } else {
-        printf("ok");
+        printINTER();
     }
     return 0;
 }

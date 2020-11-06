@@ -9,6 +9,11 @@
 #include "parse.h"
 #include "myVar.h"
 
+void addToICodes(){
+    IntermediateCode temp = IntermediateCode(newIntermediateCode);
+    intermediateCodes.push_back(temp);
+}
+
 bool isSameType1(SIG_SYM sig1, SIG_SYM sig2){
     if(sig1 == INT || sig1 == CONST_INT){
         if(sig2 == INT || sig2 == CONST_INT){
@@ -116,9 +121,11 @@ void parse_relation(){
     }
     error_parse();
 }
-void parse_char(){
+char parse_char(){
+    char ch = name_p[0];
     if(symbol_p != CHARCON)error_parse();
     get_next_token();
+    return ch;
 }
 void parse_string() {
     if (symbol_p != STRCON)error_parse();
@@ -133,12 +140,18 @@ int parse_unsigned_int(){
     myPrint("<无符号整数>");
     return res;
 }
-void parse_int(){
+int parse_int(){
+    int res;
     if(symbol_p == PLUS || symbol_p == MINU){
         parse_plus();
     }
-    parse_unsigned_int();
+    if(symbol_p == PLUS){
+        res = 1;
+    } else {}
+    res = -1;
+    res *= parse_unsigned_int();
     myPrint("<整数>");
+    return res;
 }
 
 
@@ -147,9 +160,9 @@ SIG_SYM parse_constant(){
     SIG_SYM res = NONETYPE;
     if(symbol_p == CHARCON){
         res = CHAR;
-        parse_char();
+        newIntermediateCode._chValue = parse_char();
     } else if(symbol_p == INTCON || ((symbol_p == PLUS || symbol_p == MINU) && (words[loc_f_p + 1]._symbol == INTCON))){
-        parse_int();
+        newIntermediateCode._intValue = parse_int();
         res = INT;
     }else error_parse();
     myPrint("<常量>");

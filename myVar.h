@@ -21,19 +21,11 @@ enum SYMBOL{
 enum SIG_SYM{
     INT = 1, CHAR, FUNC_WITH_RETURN, FUNC_NO_RETURN, CONST_INT, CONST_CHAR, NONETYPE
 };
+//在生成目标代码及之后不涉及con_int con_char
 
 
-union INTER_SYM{
-    SYMBOL symbol;
-    int symbol_property;// 值的含义与symbol有关
-    //symbol = printfTk: 1:str 2:expression 3:both
-
-    SIG_SYM sig_sym;
-
-    int int_value;
-    char char_value;
-    std::string str_value;
-
+enum INTER_SYM{
+    I_CON = 1, I_VAR, I_PRINTF, I_SCANF, I_ASSIGN
 };
 
 class Word{
@@ -114,11 +106,37 @@ public:
     }
 };
 
-class intermediate{
+class IntermediateCode{
 public:
-    std::string _iden;
+    INTER_SYM _interSym;
+    int _symProperty;// 值的含义与symbol有关
+    //sym = I_printf: 1:str 2:expression 3:both
 
+    //var && con
+    SIG_SYM _vcType;
+    int _intValue;
+    char _chValue;
+    std::string _name;
 
+    //printf
+    int _printfType;
+    std::string _priStr;
+    std::string _PriExpResReg;
+    SIG_SYM _PriExpType;
+
+    //scanf
+    std::string _scName;
+    SIG_SYM _scType;
+
+    //assign
+    std::string _assName;
+    std::string _assType;
+    std::string _AssExpResReg;
+
+    IntermediateCode(){};
+    IntermediateCode(INTER_SYM interSym){
+        _interSym  = interSym;
+    }
 };
 
 
@@ -135,7 +153,7 @@ extern std::map<std::string, Signal>globalSigTab;
 extern std::map<std::string, Signal>funcSigTab;
 
 extern std::ofstream output_error;
-extern std::vector<intermediate> intermediateCode;
+extern std::vector<IntermediateCode> intermediateCodes;
 
 //in parse
 extern int loc_f_p;
@@ -143,11 +161,14 @@ extern SYMBOL symbol_p;
 extern std::string name_p;
 extern int line_p;
 extern Signal newSig;
-extern bool isGlobal;
-extern std::string func_name;
-extern std::stack<std::string> call_func_name;
-extern bool hasReturn;//in def for func has return
-
 extern SIG_SYM prev_type;
+extern bool isGlobal;
+extern std::string func_name;//def
+extern std::stack<std::string> call_func_name;
+extern bool hasReturn;
+
+
+extern IntermediateCode newIntermediateCode;
+extern std::stack<IntermediateCode> ICodesStack;
 
 #endif
