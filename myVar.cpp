@@ -16,10 +16,28 @@ int transNum(std::string str) {
     }
     return res;
 }
+
+std::string myTolower(std::string myStr){
+    std::string temp = myStr;
+    transform(temp.begin(),temp.end(),temp.begin(),::tolower);
+    return temp;
+}
 std::string names[50];
 std::vector<Word>words;
 std::vector<Error>errors;
 std::map<std::string, Signal>globalSigTab;
 std::map<std::string, Signal>funcSigTab;
 
-std::ofstream output("error.txt");
+std::ofstream output_error("error.txt");
+
+//in parse
+int loc_f_p;
+SYMBOL symbol_p;
+std::string name_p;
+int line_p;
+Signal newSig = Signal();
+SIG_SYM prev_type;
+bool isGlobal = true;
+std::string func_name;//def
+std::stack<std::string> call_func_name;
+bool hasReturn = false;

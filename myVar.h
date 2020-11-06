@@ -19,7 +19,21 @@ enum SYMBOL{
 };
 
 enum SIG_SYM{
-    INT = 1, CHAR, FUNC_WITH_RETURN, FUNC_NO_RETURN, CONST_INT, CONST_CHAR,NONETYPE
+    INT = 1, CHAR, FUNC_WITH_RETURN, FUNC_NO_RETURN, CONST_INT, CONST_CHAR, NONETYPE
+};
+
+
+union INTER_SYM{
+    SYMBOL symbol;
+    int symbol_property;// 值的含义与symbol有关
+    //symbol = printfTk: 1:str 2:expression 3:both
+
+    SIG_SYM sig_sym;
+
+    int int_value;
+    char char_value;
+    std::string str_value;
+
 };
 
 class Word{
@@ -100,8 +114,16 @@ public:
     }
 };
 
+class intermediate{
+public:
+    std::string _iden;
+
+
+};
+
 
 int transNum(std::string str);
+std::string myTolower(std::string myStr);
 
 extern std::string names[50];
 
@@ -112,6 +134,20 @@ extern std::vector<Error>errors;
 extern std::map<std::string, Signal>globalSigTab;
 extern std::map<std::string, Signal>funcSigTab;
 
-extern std::ofstream output;
+extern std::ofstream output_error;
+extern std::vector<intermediate> intermediateCode;
+
+//in parse
+extern int loc_f_p;
+extern SYMBOL symbol_p;
+extern std::string name_p;
+extern int line_p;
+extern Signal newSig;
+extern bool isGlobal;
+extern std::string func_name;
+extern std::stack<std::string> call_func_name;
+extern bool hasReturn;//in def for func has return
+
+extern SIG_SYM prev_type;
 
 #endif

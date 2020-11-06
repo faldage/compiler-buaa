@@ -7,21 +7,24 @@
 #include <stack>
 #include "myVar.h"
 
-extern int loc_f_p;
-extern SYMBOL symbol_p;
-extern std::string name_p;
-extern int line_p;
-extern std::map<std::string, SYMBOL> func_tab;
-extern Signal newSig;
-extern bool isGlobal;
-extern std::string func_name;
-extern std::stack<std::string> call_func_name;
-extern bool hasReturn;//in def for func has return
+bool isSameType1(SIG_SYM sig1, SIG_SYM sig2);
 
-extern SIG_SYM prev_type;
+std::string myTolower(std::string myStr);
+void clearSig();
+void addError(std::string error_type, int temp_line);
+
+void addToTab();
+
+void clearFuncSigTab();
+
+bool isDefined(std::string str_name);
+
+void myPrint(std::string str);
 
 void error_parse();
 void get_next_token();
+void parse_iden();
+void parse_new_iden();
 
 void parse_plus();
 void parse_mult();
@@ -34,7 +37,7 @@ void parse_const_explain();
 void parse_const_def();
 int parse_unsigned_int();
 void parse_int();
-void parse_iden();
+
 void parse_statement_head();
 SIG_SYM parse_constant();
 void parse_var_explain();

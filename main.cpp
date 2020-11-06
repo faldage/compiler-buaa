@@ -11,7 +11,7 @@ using namespace std;
 
 void error_print(){
     for(Error error: errors){
-        output <<error._line<<" " << error._error_type << std::endl;
+        output_error <<error._line<<" " << error._error_type << std::endl;
     }
 }
 
@@ -31,6 +31,11 @@ int main() {
     //    t2<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
     //}
     parse();
-    error_print();
+    //error_print();
+    if(errors.size() != 0){
+        printf("some errors!\n");
+    } else {
+        printf("ok");
+    }
     return 0;
 }
