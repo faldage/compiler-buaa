@@ -25,7 +25,7 @@ enum SIG_SYM{
 
 
 enum INTER_SYM{
-    I_CON = 1, I_VAR, I_PRINTF, I_SCANF, I_ASSIGN
+    I_CON = 1, I_VAR, I_PRINTF, I_SCANF, I_ASSIGN, I_CAL
 };
 
 class Word{
@@ -110,7 +110,8 @@ class IntermediateCode{
 public:
     INTER_SYM _interSym;
     int _symProperty;// 值的含义与symbol有关
-    //sym = I_printf: 1:str 2:expression 3:both
+    //sym = I_printf: 1:str 2:expression
+    //sym = i_cal: 1:add, 2:sub, 3:mul, 4:div
 
     //var && con
     SIG_SYM _vcType;
@@ -121,8 +122,8 @@ public:
     //printf
     int _printfType;
     std::string _priStr;
-    std::string _PriExpResReg;
-    SIG_SYM _PriExpType;
+    int _priExpResReg;//NOLINT
+    SIG_SYM _priExpType;//NOLINT
 
     //scanf
     std::string _scName;
@@ -131,10 +132,23 @@ public:
     //assign
     std::string _assName;
     std::string _assType;
-    std::string _AssExpResReg;
+    int _assExpResReg;//NOLINT
 
-    IntermediateCode(){};
-    IntermediateCode(INTER_SYM interSym){
+    //cal
+    int _resRegNum;
+    int _cal1Type;//1:reg 2:iden 3:char 4:int
+    int _cal2Type;//same with above
+    int _reg1;
+    std::string _iden1;
+    char _ch1;
+    int _int1;
+    int _reg2;
+    std::string _iden2;
+    char _ch2;
+    int _int2;
+
+    IntermediateCode(){};//NOLINT
+    IntermediateCode(INTER_SYM interSym){//NOLINT
         _interSym  = interSym;
     }
 };
@@ -170,5 +184,11 @@ extern bool hasReturn;
 
 extern IntermediateCode newIntermediateCode;
 extern std::stack<IntermediateCode> ICodesStack;
+
+extern int regNum;
+
+extern int expRegNum;
+
+extern std::vector<std::string>stringList;
 
 #endif

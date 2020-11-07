@@ -31,8 +31,6 @@ void parse_program(){
     myPrint("<程序>");
 }
 
-
-
 void parse_compound_sent(){
     if(symbol_p == CONSTTK){
         parse_const_explain();
@@ -43,40 +41,7 @@ void parse_compound_sent(){
     parse_sent_col();
     myPrint("<复合语句>");
 }
-void parse_para_tab(){
-    if(symbol_p != RPARENT) {
-        if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
-        if(symbol_p == INTTK)newSig._type = INT;
-        else newSig._type = CHAR;
 
-        newSig._line = line_p;
-
-        globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
-
-        get_next_token();
-
-        parse_new_iden();
-        addToTab();
-
-
-        while(symbol_p == COMMA){
-            get_next_token();
-            if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
-            if(symbol_p == INTTK)newSig._type = INT;
-            else newSig._type = CHAR;
-
-            newSig._line = line_p;
-
-            globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
-
-            get_next_token();
-
-            parse_new_iden();
-            addToTab();
-        }
-    }
-    myPrint("<参数表>");
-}
 void parse_main(){
     func_name = "main";
 
@@ -198,6 +163,7 @@ void parse_assign_sent(){
         newIntermediateCode = IntermediateCode();//??????????????????
         parse_expression();
         newIntermediateCode = ICodesStack.top();
+        newIntermediateCode._assExpResReg = expRegNum;
         ICodesStack.pop();
         addToICodes();
     } else if(symbol_p == LBRACK){
@@ -435,15 +401,17 @@ void parse_print_sent(){
         addToICodes();
         if(symbol_p == COMMA){
             get_next_token();
-            parse_expression();
+            newIntermediateCode._priExpType = parse_expression();
             newIntermediateCode._interSym = I_PRINTF;
             newIntermediateCode._symProperty = 2;
+            newIntermediateCode._priExpResReg = expRegNum;//NOLINT
             addToICodes();
         }
     }else{
-        parse_expression();
+        newIntermediateCode._priExpType = parse_expression();
         newIntermediateCode._interSym = I_PRINTF;
         newIntermediateCode._symProperty = 2;
+        newIntermediateCode._priExpResReg = expRegNum;//NOLINT
         addToICodes();
     }
 

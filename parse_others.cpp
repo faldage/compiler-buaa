@@ -10,7 +10,7 @@
 #include "myVar.h"
 
 void addToICodes(){
-    IntermediateCode temp = IntermediateCode(newIntermediateCode);
+    IntermediateCode temp = newIntermediateCode;
     intermediateCodes.push_back(temp);
 }
 
@@ -129,6 +129,7 @@ char parse_char(){
 }
 void parse_string() {
     if (symbol_p != STRCON)error_parse();
+    stringList.push_back(name_p);
     get_next_token();
     myPrint("<字符串>");
 }
@@ -145,10 +146,12 @@ int parse_int(){
     if(symbol_p == PLUS || symbol_p == MINU){
         parse_plus();
     }
-    if(symbol_p == PLUS){
+    if(symbol_p == MINU){
+        res = -1;
+    } else {
         res = 1;
-    } else {}
-    res = -1;
+    }
+
     res *= parse_unsigned_int();
     myPrint("<整数>");
     return res;

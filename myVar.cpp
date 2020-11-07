@@ -22,6 +22,12 @@ std::string myTolower(std::string myStr){
     transform(temp.begin(),temp.end(),temp.begin(),::tolower);
     return temp;
 }
+
+//void addVarToSp(std::string name){
+//    varLoc[name] = varDefCount;
+//    varDefCount++;
+//}
+
 std::string names[50];
 std::vector<Word>words;
 std::vector<Error>errors;
@@ -45,3 +51,11 @@ std::stack<std::string> call_func_name;//NOLINT
 bool hasReturn = false;
 IntermediateCode newIntermediateCode;//NOLINT
 std::stack<IntermediateCode> ICodesStack;//NOLINT
+
+//std::map<std::string, int>varLoc;
+//int varDefCount = 0;
+int regNum = 0;
+
+int expRegNum;
+
+std::vector<std::string>stringList;

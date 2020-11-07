@@ -8,7 +8,40 @@
 #include <stack>
 #include "myVar.h"
 #include "parse.h"
+void parse_para_tab(){
+    if(symbol_p != RPARENT) {
+        if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
+        if(symbol_p == INTTK)newSig._type = INT;
+        else newSig._type = CHAR;
 
+        newSig._line = line_p;
+
+        globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
+
+        get_next_token();
+
+        parse_new_iden();
+        addToTab();
+
+
+        while(symbol_p == COMMA){
+            get_next_token();
+            if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
+            if(symbol_p == INTTK)newSig._type = INT;
+            else newSig._type = CHAR;
+
+            newSig._line = line_p;
+
+            globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
+
+            get_next_token();
+
+            parse_new_iden();
+            addToTab();
+        }
+    }
+    myPrint("<参数表>");
+}
 void parse_statement_head(){
     if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
     SYMBOL temp_type = symbol_p;
