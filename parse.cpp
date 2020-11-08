@@ -395,7 +395,16 @@ void parse_print_sent(){
 
     if(symbol_p == STRCON){
         newIntermediateCode._interSym = I_PRINTF;
-        newIntermediateCode._symProperty = 1;
+        for(int i = loc_f_p; i < words.size(); i++){
+            if(words[i]._symbol == SEMICN){
+                newIntermediateCode._symProperty = 1;
+                break;
+            }
+            if(words[i]._symbol== COMMA){
+                newIntermediateCode._symProperty = 3;
+                break;
+            }
+        }
         newIntermediateCode._priStr = name_p;
         parse_string();
         addToICodes();

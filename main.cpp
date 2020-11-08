@@ -6,19 +6,20 @@
 #include "myVar.h"
 #include "getToken.h"
 #include "parse.h"
+#include "generateMIPS.h"
 
 using namespace std;
 
-void error_print(){
-    for(Error error: errors){
-        output_error <<error._line<<" " << error._error_type << std::endl;
-    }
-}
+//void error_print(){
+//    for(Error error: errors){
+ //       output_error <<error._line<<" " << error._error_type << std::endl;
+  //  }
+//}
 
 void printINTER(){
     std::cout<<"stringList"<<endl;
-    for(std::string str : stringList){
-        std::cout<<str<<endl;
+    for(auto &v : stringList){
+        std::cout<<v.first<<"num: "<<v.second<<endl;
     }
     std::cout<<"______________"<<endl;
     for(IntermediateCode i : intermediateCodes){
@@ -101,14 +102,15 @@ int main() {
     }
     //t2<<str<<endl;
     //for(int i = 0; i < words.size(); i++){
-    //    t2<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
+    //   std::cout<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
     //}
     parse();
     //error_print();
-    if(errors.size() != 0){
-        printf("some errors!\n");
-    } else {
-        printINTER();
-    }
+    //if(errors.size() != 0){
+    //    printf("some errors!\n");
+    //} else {
+    //    printINTER();
+    //}
+    generate();
     return 0;
 }

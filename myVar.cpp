@@ -34,7 +34,7 @@ std::vector<Error>errors;
 std::map<std::string, Signal>globalSigTab;
 std::map<std::string, Signal>funcSigTab;
 
-std::ofstream output_error("error.txt");//NOLINT
+//std::ofstream output_error("error.txt");//NOLINT
 
 std::vector<IntermediateCode> intermediateCodes;
 
@@ -49,13 +49,16 @@ bool isGlobal = true;
 std::string func_name;//def
 std::stack<std::string> call_func_name;//NOLINT
 bool hasReturn = false;
+
+//get interCode
 IntermediateCode newIntermediateCode;//NOLINT
 std::stack<IntermediateCode> ICodesStack;//NOLINT
-
-//std::map<std::string, int>varLoc;
-//int varDefCount = 0;
 int regNum = 0;
+int expRegNum = 0;
 
-int expRegNum;
-
-std::vector<std::string>stringList;
+//getMIPS
+int strCount = 0;
+std::map<std::string, int>stringList;
+std::map<std::string, VarLoc>locAssign;
+std::map<int, int>regAssign;
+int gpCount = 0;

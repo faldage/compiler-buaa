@@ -170,6 +170,8 @@ void parse_var_def_no_initial(){
             get_next_token();
         }
     }
+    newIntermediateCode._intValue = 0;
+    newIntermediateCode._chValue = 0;
     addToICodes();
     addToTab();
     while(symbol_p == COMMA){
@@ -199,6 +201,8 @@ void parse_var_def_no_initial(){
                 get_next_token();
             }
         }
+        newIntermediateCode._intValue = 0;
+        newIntermediateCode._chValue = 0;
         addToICodes();
         addToTab();
     }

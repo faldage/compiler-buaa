@@ -129,7 +129,8 @@ char parse_char(){
 }
 void parse_string() {
     if (symbol_p != STRCON)error_parse();
-    stringList.push_back(name_p);
+    stringList[name_p] = strCount;
+    strCount++;
     get_next_token();
     myPrint("<字符串>");
 }
@@ -142,14 +143,12 @@ int parse_unsigned_int(){
     return res;
 }
 int parse_int(){
-    int res;
+    int res = 1;
     if(symbol_p == PLUS || symbol_p == MINU){
+        if(symbol_p == MINU){
+            res = -1;
+        }
         parse_plus();
-    }
-    if(symbol_p == MINU){
-        res = -1;
-    } else {
-        res = 1;
     }
 
     res *= parse_unsigned_int();

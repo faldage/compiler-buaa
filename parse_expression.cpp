@@ -103,7 +103,6 @@ SIG_SYM parse_item(){
     }
     myPrint("<项>");
     itemReg = thisItemRegNum;
-    regNum--;
     return res;
 }
 SIG_SYM parse_factor(){
@@ -130,12 +129,18 @@ SIG_SYM parse_factor(){
         newIntermediateCode._cal2Type = 1;
         newIntermediateCode._reg2 = expRegNum;
     } else if(symbol_p == IDENFR){
+        SIG_SYM temp;
         if(globalSigTab.count(myTolower(name_p)) != 0){
-            res = globalSigTab[myTolower(name_p)]._type;
+            temp = globalSigTab[myTolower(name_p)]._type;
         } else if(funcSigTab.count(myTolower(name_p)) != 0){
-            res = funcSigTab[myTolower(name_p)]._type;
+            temp = funcSigTab[myTolower(name_p)]._type;
         } else {
             addError("c", line_p);
+        }
+        if(temp == INT || temp == CONST_INT){
+            res = INT;
+        } else if (temp == CHAR || temp == CONST_CHAR){
+            res = CHAR;
         }
         if(words[loc_f_p + 1]._symbol == LBRACK){
             get_next_token();
@@ -177,6 +182,5 @@ SIG_SYM parse_factor(){
     addToICodes();
     factorReg = thisFactorRegNum;
     myPrint("<因子>");
-    regNum--;
     return res;
 }

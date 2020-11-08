@@ -110,7 +110,7 @@ class IntermediateCode{
 public:
     INTER_SYM _interSym;
     int _symProperty;// 值的含义与symbol有关
-    //sym = I_printf: 1:str 2:expression
+    //sym = I_printf: 1:str 2:expression 3:both: str
     //sym = i_cal: 1:add, 2:sub, 3:mul, 4:div
 
     //var && con
@@ -153,6 +153,14 @@ public:
     }
 };
 
+class VarLoc{
+public:
+    int loc_type;
+    //1:reg 2:mem 3:gp 4:sp;
+
+    int num;
+};
+
 
 int transNum(std::string str);
 std::string myTolower(std::string myStr);
@@ -181,7 +189,7 @@ extern std::string func_name;//def
 extern std::stack<std::string> call_func_name;
 extern bool hasReturn;
 
-
+//get inter code
 extern IntermediateCode newIntermediateCode;
 extern std::stack<IntermediateCode> ICodesStack;
 
@@ -189,6 +197,12 @@ extern int regNum;
 
 extern int expRegNum;
 
-extern std::vector<std::string>stringList;
+//get MIPS
+extern int strCount;
+extern std::map<std::string, int>stringList;
+
+extern std::map<std::string, VarLoc>locAssign;//变量名对应位置
+extern std::map<int, int>regAssign;//寄存器已分配的情况
+extern int gpCount;//gp分配位置
 
 #endif
