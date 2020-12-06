@@ -26,16 +26,16 @@ void printINTER(){
         if(i._interSym == I_CON){
             std::cout<<"CON ";
             if(i._vcType == INT){
-                std::cout<<"INT "<<i._name<<" " << i._intValue<<endl;
+                std::cout<<"INT "<<i._name<<" " << i._intValue[0]<<endl;
             } else if(i._vcType == CHAR){
-                std::cout<<"CHAR "<<i._name<<" "<<i._chValue<<endl;
+                std::cout<<"CHAR "<<i._name<<" "<<i._chValue[0]<<endl;
             }
         }  else if(i._interSym == I_VAR){
             std::cout<<"VAR ";
             if(i._vcType == INT){
-                std::cout<<"INT "<<i._name<<" " << i._intValue<<endl;
+                std::cout<<"INT "<<i._name<<" " << i._intValue[0]<<endl;
             } else if(i._vcType == CHAR){
-                std::cout<<"CHAR "<<i._name<<" "<<i._chValue<<endl;
+                std::cout<<"CHAR "<<i._name<<" "<<i._chValue[0]<<endl;
             }
         } else if(i._interSym == I_SCANF){
             std::cout<<"SCANF "<<i._scName;
@@ -102,7 +102,7 @@ int main() {
     }
     //t2<<str<<endl;
     //for(int i = 0; i < words.size(); i++){
-    //   std::cout<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
+    //  std::cout<<names[words[i]._symbol] << " "<< words[i]._name<<": line"<<words[i]._line<<endl;
     //}
     parse();
     //error_print();
@@ -111,6 +111,20 @@ int main() {
     //} else {
     //    printINTER();
     //}
+    std::cout<<"_______________"<<std::endl;
+    map<std::string, Signal>::iterator iter;
+    for(iter = globalSigTab.begin(); iter != globalSigTab.end(); iter++) {
+        std::cout << iter->first << ":"<< iter->second._name << std::endl;
+    }
+    std::map<std::string, Signal>::iterator iter2;
+    std::map<std::string, std::map<std::string, Signal>>::iterator iter3;
+    for(iter3 = funcSigTabMap.begin(); iter3 != funcSigTabMap.end(); iter3++) {
+        std::cout << iter3->first << "!_________" << std::endl;
+        for(iter2 = funcSigTabMap[iter3->first].begin(); iter2 != funcSigTabMap[iter3->first].end(); iter2++){
+            std::cout << iter2->first << std::endl;
+        }
+    }
+
     generate();
     return 0;
 }

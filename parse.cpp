@@ -18,16 +18,30 @@ void parse_program(){
     clearFuncSigTab();
     clearSig();
     isGlobal = false;
+    funcInitialSpaceForSp();
+
+    newIntermediateCode._interSym = I_CODE;
+    newIntermediateCode._code = "j main";
+    addToICodes();
+
     while(words[loc_f_p + 1]._symbol == IDENFR && words[loc_f_p + 2]._symbol == LPARENT){
         if(symbol_p == VOIDTK){
             parse_func_no_return_def();
         } else if(symbol_p == INTTK || symbol_p == CHARTK){
             parse_func_with_return_def();
         } else error_parse();
+
+        newIntermediateCode._interSym = I_JR_RA;
+        addToICodes();
+
         clearFuncSigTab();
         clearSig();
+
+        finishCountSpace();
     }
     parse_main();
+    clearFuncSigTab();
+    finishCountSpace();
     myPrint("<程序>");
 }
 
@@ -43,6 +57,9 @@ void parse_compound_sent(){
 }
 
 void parse_main(){
+    newIntermediateCode._interSym = I_FUNC_DEF;
+    newIntermediateCode._funcDefName = "main";
+    addToICodes();
     func_name = "main";
 
     if(symbol_p != VOIDTK)error_parse();
@@ -128,6 +145,7 @@ void parse_sent(){
     else error_parse();
     myPrint("<语句>");
 }
+
 void parse_assign_sent(){
      newIntermediateCode._interSym = I_ASSIGN;
 
@@ -168,7 +186,16 @@ void parse_assign_sent(){
         addToICodes();
     } else if(symbol_p == LBRACK){
         get_next_token();
+        newIntermediateCode._interSym = I_ARR_ASS;
+        newIntermediateCode._symProperty = 1;
+        ICodesStack.push(newIntermediateCode);
+
         SIG_SYM temp = parse_expression();
+
+        newIntermediateCode = ICodesStack.top();
+        ICodesStack.pop();
+        newIntermediateCode._loc1 = expRegNum;
+
         if(temp != INT && temp != CONST_INT){
             addError("i", line_p);
         }
@@ -177,9 +204,29 @@ void parse_assign_sent(){
         } else {
             get_next_token();
         }
+
         if(symbol_p == LBRACK){
             get_next_token();
+
+            newIntermediateCode._symProperty = 2;
+            ICodesStack.push(newIntermediateCode);
+
             temp = parse_expression();
+
+            newIntermediateCode = ICodesStack.top();
+            ICodesStack.pop();
+            newIntermediateCode._loc2 = expRegNum;
+
+            std::cout<<"@"<<newIntermediateCode._assName<<std::endl;
+            if(funcSigTabMap[myTolower(func_name)].count(myTolower(newIntermediateCode._assName)) != 0) {
+                newIntermediateCode._length = funcSigTabMap[myTolower(func_name)][myTolower(newIntermediateCode._assName)]._dem_num2;
+            } else if(globalSigTab.count(myTolower(newIntermediateCode._assName)) != 0){
+                newIntermediateCode._length = globalSigTab[myTolower(newIntermediateCode._assName)]._dem_num2;
+            } else {
+                std::cout<<"wrong when find length! in ass"<<std::endl;
+            }
+            ICodesStack.push(newIntermediateCode);
+
             if(temp != INT && temp != CONST_INT){
                 addError("i", line_p);
             }
@@ -191,6 +238,11 @@ void parse_assign_sent(){
             if(symbol_p != ASSIGN)error_parse();
             get_next_token();
             parse_expression();
+
+            newIntermediateCode = ICodesStack.top();
+            ICodesStack.pop();
+            newIntermediateCode._arr_ass_regNum = expRegNum;
+            addToICodes();
         } else if(symbol_p == ASSIGN){
             get_next_token();
             parse_expression();
@@ -198,147 +250,8 @@ void parse_assign_sent(){
     } else error_parse();
     myPrint("<赋值语句>");
 }
-void parse_cond_sent(){
-    //t2<<"parse_cond_sent"<<std::endl;
-    if(symbol_p != IFTK)error_parse();
-    get_next_token();
-    if(symbol_p != LPARENT)error_parse();
-    get_next_token();
-    parse_condition();
-    if(symbol_p != RPARENT) {
-        addError("l", words[loc_f_p - 1]._line);
-    } else {
-        get_next_token();
-    }
 
-    parse_sent();
-    if(symbol_p == ELSETK){
-        get_next_token();
-        parse_sent();
-    }
-    myPrint("<条件语句>");
-}
-void parse_condition(){
-    //t2<<"parse_condition"<<std::endl;
-    SIG_SYM temp1 = parse_expression();
-    parse_relation();
-    SIG_SYM temp2 = parse_expression();
-    if((temp1 != INT && temp1 != CONST_INT)|| (temp2 != INT && temp2 != CONST_INT)){
-        addError("f", line_p);
-    }
-    myPrint("<条件>");
-}
-void parse_loop_sent() {
-    if (symbol_p == WHILETK) {
-        get_next_token();
-        if (symbol_p != LPARENT)error_parse();
-        get_next_token();
-        parse_condition();
-        if(symbol_p != RPARENT) {
-            addError("l", words[loc_f_p - 1]._line);
-        } else {
-            get_next_token();
-        }
-        parse_sent();
-    } else if (symbol_p == FORTK) {
-        get_next_token();
-        if (symbol_p != LPARENT)error_parse();
-        get_next_token();
-        parse_iden();
-        if (symbol_p != ASSIGN)error_parse();
-        get_next_token();
-        parse_expression();
-        if(symbol_p != SEMICN) {
-            addError("k", words[loc_f_p - 1]._line);
-        } else {
-            get_next_token();
-        }
-        parse_condition();
-        if(symbol_p != SEMICN) {
-            addError("k", words[loc_f_p - 1]._line);
-        } else {
-            get_next_token();
-        }
-        parse_iden();
-        if (symbol_p != ASSIGN)error_parse();
-        get_next_token();
-        parse_iden();
-        parse_plus();
-        parse_step_length();
-        if(symbol_p != RPARENT) {
-            addError("l", words[loc_f_p - 1]._line);
-        } else {
-            get_next_token();
-        }
-        parse_sent();
-    } else error_parse();
-    myPrint("<循环语句>");
-}
-void parse_step_length(){
-    parse_unsigned_int();
-    myPrint("<步长>");
-}
-void parse_case_sent(){
-    if(symbol_p != SWITCHTK)error_parse();
-    get_next_token();
 
-    if(symbol_p != LPARENT)error_parse();
-    get_next_token();
-
-    SIG_SYM temp = parse_expression();
-
-    if(symbol_p != RPARENT) {
-        addError("l", words[loc_f_p - 1]._line);
-    } else {
-        get_next_token();
-    }
-
-    if(symbol_p != LBRACE)error_parse();
-    get_next_token();
-
-    parse_case_tab(temp);
-    parse_default();
-
-    if(symbol_p != RBRACE)error_parse();
-    get_next_token();
-    myPrint("<情况语句>");
-}
-void parse_case_tab(SIG_SYM sig_sym){
-    if(symbol_p != CASETK)error_parse();
-    parse_case_sub_sent(sig_sym);
-
-    while(symbol_p == CASETK){
-        parse_case_sub_sent(sig_sym);
-    }
-    myPrint("<情况表>");
-}
-void parse_case_sub_sent(SIG_SYM sig_sym){
-    if(symbol_p != CASETK)error_parse();
-    get_next_token();
-
-    if(parse_constant()!= sig_sym){
-        addError("o", line_p);
-    }
-
-    if(symbol_p != COLON)error_parse();
-    get_next_token();
-
-    parse_sent();
-    myPrint("<情况子语句>");
-}
-void parse_default(){
-    if(symbol_p != DEFAULTTK) {
-        addError("p", line_p);
-        return;
-    }
-    get_next_token();
-
-    if(symbol_p != COLON)error_parse();
-    get_next_token();
-
-    parse_sent();
-    myPrint("<缺省>");
-}
 void parse_sent_col(){
     while(symbol_p != RBRACE){
         parse_sent();
@@ -454,7 +367,20 @@ void parse_return_sent(){
         } else {
             get_next_token();
         }
+        newIntermediateCode._interSym = I_CAL;
+        newIntermediateCode._cal1Type = 1;
+        newIntermediateCode._reg1 = expRegNum;
+        newIntermediateCode._cal2Type = 4;
+        newIntermediateCode._int1 = 0;
+        newIntermediateCode._resType = 2;
+        newIntermediateCode._resReg2 = 2;
+        newIntermediateCode._symProperty = 1;
+        addToICodes();
+
     } else {
+        newIntermediateCode._interSym = I_CODE;
+        newIntermediateCode._code = "move $2, $0";
+        addToICodes();
         if(globalSigTab[myTolower(func_name)]._returnType != NONETYPE){
             addError("h", line_p);
         }

@@ -22,6 +22,17 @@ std::string myTolower(std::string myStr){
     transform(temp.begin(),temp.end(),temp.begin(),::tolower);
     return temp;
 }
+void finishCountSpace(){
+    globalSigTab[myTolower(func_name)]._spaceCount = spCount;
+}
+
+void funcAddSpaceForSp(){
+    spCount++;
+}
+
+void funcInitialSpaceForSp(){
+    spCount = 0;
+}
 
 //void addVarToSp(std::string name){
 //    varLoc[name] = varDefCount;
@@ -33,6 +44,7 @@ std::vector<Word>words;
 std::vector<Error>errors;
 std::map<std::string, Signal>globalSigTab;
 std::map<std::string, Signal>funcSigTab;
+std::map<std::string, std::map<std::string, Signal>>funcSigTabMap;
 
 //std::ofstream output_error("error.txt");//NOLINT
 
@@ -59,6 +71,10 @@ int expRegNum = 0;
 //getMIPS
 int strCount = 0;
 std::map<std::string, int>stringList;
-std::map<std::string, VarLoc>locAssign;
-std::map<int, int>regAssign;
-int gpCount = 0;
+int labelCount = 0;
+std::stack<int>endLabelStack;
+std::stack<int>labelStack;
+
+std::stack<int>lastICNum;
+
+int spCount = 0;

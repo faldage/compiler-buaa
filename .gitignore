@@ -107,5 +107,5 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/clion
 
-by2.zip
+*.zip
 *.txt

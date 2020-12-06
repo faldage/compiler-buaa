@@ -9,6 +9,7 @@
 #include "myVar.h"
 #include "parse.h"
 void parse_para_tab(){
+    funcInitialSpaceForSp();
     if(symbol_p != RPARENT) {
         if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
         if(symbol_p == INTTK)newSig._type = INT;
@@ -16,11 +17,10 @@ void parse_para_tab(){
 
         newSig._line = line_p;
 
-        globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
-
         get_next_token();
 
         parse_new_iden();
+        globalSigTab[myTolower(func_name)].func_addPara(newSig._type, newSig._name);
         addToTab();
 
 
@@ -32,11 +32,10 @@ void parse_para_tab(){
 
             newSig._line = line_p;
 
-            globalSigTab[myTolower(func_name)].func_addPara(newSig._type);
-
             get_next_token();
 
             parse_new_iden();
+            globalSigTab[myTolower(func_name)].func_addPara(newSig._type, newSig._name);
             addToTab();
         }
     }
@@ -48,7 +47,8 @@ void parse_statement_head(){
 
     get_next_token();
 
-    func_name = words[loc_f_p]._name;
+    func_name = name_p;
+    newIntermediateCode._funcDefName = name_p;
 
     parse_new_iden();
     myPrint("<声明头部>");
@@ -63,7 +63,10 @@ void parse_func_with_return_def(){
         newSig._returnType = CHAR;
     }
 
+    newIntermediateCode._interSym = I_FUNC_DEF;
+
     parse_statement_head();
+    addToICodes();
     addToTab();
 
     if(symbol_p != LPARENT)error_parse();
@@ -100,7 +103,11 @@ void parse_func_no_return_def(){
     newSig._returnType = NONETYPE;
     newSig._line = line_p;
 
-    func_name = words[loc_f_p]._name;
+    func_name = name_p;
+
+    newIntermediateCode._interSym = I_FUNC_DEF;
+    newIntermediateCode._funcDefName = name_p;
+    addToICodes();
 
     parse_new_iden();
     addToTab();
@@ -123,6 +130,5 @@ void parse_func_no_return_def(){
 
     if(symbol_p != RBRACE)error_parse();
     get_next_token();
-    clearFuncSigTab();
     myPrint("<无返回值函数定义>");
 }

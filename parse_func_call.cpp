@@ -9,7 +9,18 @@
 #include "parse.h"
 
 SIG_SYM parse_func_call_with_return(){
+    //sym = i_func_call: 0: no_return 1:return int 2:return char
+    newIntermediateCode._interSym = I_FUNC_CALL;
+    if(globalSigTab[myTolower(name_p)]._returnType == INT){
+        newIntermediateCode._symProperty = 1;
+    } else if(globalSigTab[myTolower(name_p)]._returnType == CHAR){
+        newIntermediateCode._symProperty = 2;
+    } else{
+        newIntermediateCode._symProperty = 0;
+    }
     call_func_name.push(name_p);
+    newIntermediateCode._funcCallName = name_p;
+
     parse_iden();
     if(symbol_p != LPARENT)error_parse();
     get_next_token();
@@ -48,6 +59,7 @@ void parse_val_para_tab(){
     std::vector<SIG_SYM> temp_list;
     if(symbol_p != RPARENT){
         temp_list.push_back(parse_expression());
+        newIntermediateCode._paraRegNum.push_back(expRegNum);
         if(temp_list[temp_list.size() - 1] != NONETYPE){
             num++;
         }
@@ -55,8 +67,10 @@ void parse_val_para_tab(){
             get_next_token();
             temp_list.push_back(parse_expression());
             num++;
+            newIntermediateCode._paraRegNum.push_back(expRegNum);
         }
     }
+    newIntermediateCode._paraType = temp_list;
 
     if(num == globalSigTab[myTolower(call_func_name.top())]._para_tab.size()){
         for(int i = 0; i < num; i++){

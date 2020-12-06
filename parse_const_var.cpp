@@ -40,7 +40,8 @@ void parse_const_def(){
         if(symbol_p != ASSIGN)error_parse();
         get_next_token();
 
-        newIntermediateCode._intValue = parse_int();
+        funcAddSpaceForSp();
+        newIntermediateCode._intValue.push_back(parse_int());
         addToICodes();
         addToTab();
 
@@ -53,7 +54,8 @@ void parse_const_def(){
             parse_new_iden();
             if(symbol_p != ASSIGN)error_parse();
             get_next_token();
-            newIntermediateCode._intValue = parse_int();
+            newIntermediateCode._intValue.push_back(parse_int());
+            funcAddSpaceForSp();
 
             addToICodes();
             addToTab();
@@ -73,7 +75,8 @@ void parse_const_def(){
         parse_new_iden();
         if(symbol_p != ASSIGN)error_parse();
         get_next_token();
-        newIntermediateCode._chValue = parse_char();
+        newIntermediateCode._chValue.push_back(parse_char());
+        funcAddSpaceForSp();
         addToICodes();
 
         addToTab();
@@ -86,7 +89,8 @@ void parse_const_def(){
             parse_new_iden();
             if(symbol_p != ASSIGN)error_parse();
             get_next_token();
-            newIntermediateCode._chValue = parse_char();
+            newIntermediateCode._chValue.push_back(parse_char());
+            funcAddSpaceForSp();
             addToICodes();
             addToTab();
         }
@@ -149,29 +153,49 @@ void parse_var_def_no_initial(){
     newSig._line = line_p;
 
     newIntermediateCode._name = name_p;
+    newIntermediateCode._symProperty = 0;
     parse_new_iden();
     if(symbol_p == LBRACK){
         newSig._dem = 1;
+        newIntermediateCode._symProperty = 1;
         get_next_token();
-        parse_unsigned_int();
+        newIntermediateCode._dem1 = parse_unsigned_int();
         if(symbol_p != RBRACK) {
             addError("m", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
-    }
-    if(symbol_p == LBRACK){
-        newSig._dem = 2;
-        get_next_token();
-        parse_unsigned_int();
-        if(symbol_p != RBRACK) {
-            addError("m", words[loc_f_p - 1]._line);
-        } else {
+
+        if(symbol_p == LBRACK){
+            newSig._dem = 2;
+            newIntermediateCode._symProperty = 2;
             get_next_token();
+            newIntermediateCode._dem2 = parse_unsigned_int();
+            if(symbol_p != RBRACK) {
+                addError("m", words[loc_f_p - 1]._line);
+            } else {
+                get_next_token();
+            }
+
+            for(int i = 0; i < newIntermediateCode._dem1 * newIntermediateCode._dem2; i++){
+                newIntermediateCode._intValue.push_back(0);
+                newIntermediateCode._chValue.push_back(0);
+                funcAddSpaceForSp();
+            }
+        } else{
+            for(int i = 0; i < newIntermediateCode._dem1; i++){
+                newIntermediateCode._intValue.push_back(0);
+                newIntermediateCode._chValue.push_back(0);
+                funcAddSpaceForSp();
+            }
         }
+    }else{
+        newIntermediateCode._intValue.push_back(0);
+        newIntermediateCode._chValue.push_back(0);
+        funcAddSpaceForSp();
     }
-    newIntermediateCode._intValue = 0;
-    newIntermediateCode._chValue = 0;
+
+
     addToICodes();
     addToTab();
     while(symbol_p == COMMA){
@@ -180,11 +204,13 @@ void parse_var_def_no_initial(){
         get_next_token();
 
         newIntermediateCode._name = name_p;
+        newIntermediateCode._symProperty = 0;
         parse_new_iden();
         if(symbol_p == LBRACK){
             newSig._dem = 1;
+            newIntermediateCode._symProperty = 1;
             get_next_token();
-            parse_unsigned_int();
+            newIntermediateCode._dem1 = parse_unsigned_int();
             if(symbol_p != RBRACK) {
                 addError("m", words[loc_f_p - 1]._line);
             } else {
@@ -193,16 +219,29 @@ void parse_var_def_no_initial(){
         }
         if(symbol_p == LBRACK){
             newSig._dem = 2;
+            newIntermediateCode._symProperty = 2;
             get_next_token();
-            parse_unsigned_int();
+            newIntermediateCode._dem2 = parse_unsigned_int();
             if(symbol_p != RBRACK) {
                 addError("m", words[loc_f_p - 1]._line);
             } else {
                 get_next_token();
             }
         }
-        newIntermediateCode._intValue = 0;
-        newIntermediateCode._chValue = 0;
+        int c;
+        if(newIntermediateCode._symProperty == 0){
+            c = 0;
+        } else if(newIntermediateCode._symProperty == 1){
+            c = newIntermediateCode._dem1;
+        } else{
+            c = newIntermediateCode._dem1 * newIntermediateCode._dem2;
+        }
+        for(int i = 0; i < c; i++){
+            newIntermediateCode._intValue.push_back(0);
+            newIntermediateCode._chValue.push_back(0);
+            funcAddSpaceForSp();
+        }
+
         addToICodes();
         addToTab();
     }
@@ -227,8 +266,12 @@ void parse_var_def_and_initial(){
     parse_new_iden();
     if(symbol_p == LBRACK){
         newSig._dem = 1;
+        newIntermediateCode._symProperty = 1;
+
         get_next_token();
         newSig._dem_num1 = parse_unsigned_int();
+        newIntermediateCode._dem1 = newSig._dem_num1;
+
         if(symbol_p != RBRACK) {
             addError("m", words[loc_f_p - 1]._line);
         } else {
@@ -237,8 +280,12 @@ void parse_var_def_and_initial(){
 
         if(symbol_p == LBRACK){
             newSig._dem = 2;
+            newIntermediateCode._symProperty = 2;
+
             get_next_token();
             newSig._dem_num2 = parse_unsigned_int();
+            newIntermediateCode._dem2 = newSig._dem_num2;
+
             if(symbol_p != RBRACK) {
                 addError("m", words[loc_f_p - 1]._line);
             } else {
@@ -327,11 +374,25 @@ void parse_var_def_and_initial(){
         }
     } else {
         newSig._dem = 0;
+        newIntermediateCode._symProperty = 0;
+
         if(symbol_p != ASSIGN)error_parse();
         get_next_token();
-        if(parse_constant() != newSig._type){
+
+        if(parse_constant() != newSig._type) {
             addError("o", line_p);
         }
+    }
+    int c;
+    if(newIntermediateCode._symProperty == 0){
+        c = 1;
+    } else if(newIntermediateCode._symProperty == 1){
+        c = newIntermediateCode._dem1;
+    } else{
+        c = newIntermediateCode._dem2 * newIntermediateCode._dem1;
+    }
+    for(int i = 0; i < c; i++){
+        funcAddSpaceForSp();
     }
     addToICodes();
     addToTab();

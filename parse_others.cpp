@@ -12,6 +12,12 @@
 void addToICodes(){
     IntermediateCode temp = newIntermediateCode;
     intermediateCodes.push_back(temp);
+
+    newIntermediateCode._intValue.clear();
+    newIntermediateCode._chValue.clear();
+
+    newIntermediateCode._paraRegNum.clear();
+    newIntermediateCode._paraType.clear();
 }
 
 bool isSameType1(SIG_SYM sig1, SIG_SYM sig2){
@@ -52,10 +58,11 @@ void addToTab(){
         } else {
             addError("b", newSig._line);
         }
-        funcSigTab[temp] = newSig;
+        //funcSigTab[temp] = newSig;
     } else {
         if(funcSigTab.count(temp) == 0) {
             funcSigTab[temp] = newSig;
+            funcSigTabMap[myTolower(func_name)][temp] = newSig;
         } else {
             addError("b", newSig._line);
         }
@@ -64,8 +71,12 @@ void addToTab(){
 }
 
 void clearFuncSigTab(){
+    if(!isGlobal){
+        funcSigTabMap[func_name] = funcSigTab;
+    }
     funcSigTab.clear();
 }
+
 
 bool isDefined(std::string str_name){
     if(globalSigTab.count(myTolower(str_name)) == 0 && funcSigTab.count(myTolower(str_name)) == 0){
@@ -162,9 +173,9 @@ SIG_SYM parse_constant(){
     SIG_SYM res = NONETYPE;
     if(symbol_p == CHARCON){
         res = CHAR;
-        newIntermediateCode._chValue = parse_char();
+        newIntermediateCode._chValue.push_back(parse_char());
     } else if(symbol_p == INTCON || ((symbol_p == PLUS || symbol_p == MINU) && (words[loc_f_p + 1]._symbol == INTCON))){
-        newIntermediateCode._intValue = parse_int();
+        newIntermediateCode._intValue.push_back(parse_int());
         res = INT;
     }else error_parse();
     myPrint("<常量>");
