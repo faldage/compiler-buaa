@@ -70,8 +70,10 @@ void printINTER(){
                 std::cout<<"(iden)"<<i._iden1<<",";
             } else if(i._cal1Type == 3){
                 std::cout<<"(char)"<<i._ch1<<",";
-            } else {
+            } else if(i._cal1Type == 4){
                 std::cout<<"(int)"<<i._int1<<",";
+            } else {
+                std::cout<<"(sReg)"<<i._sReg1<<",";
             }
 
             if(i._cal2Type == 1){
@@ -80,10 +82,20 @@ void printINTER(){
                 std::cout<<"(iden)"<<i._iden2<<endl;
             } else if(i._cal2Type == 3){
                 std::cout<<"(char)"<<i._ch2<<endl;
+            } else if(i._cal1Type == 4){
+                std::cout<<"(int)"<<i._int2<<","<<std::endl;
             } else {
-                std::cout<<"(int)"<<i._int2<<endl;
+                std::cout<<"(sReg)"<<i._sReg2<<","<<std::endl;
             }
-        }else{
+        } else if(i._interSym == I_FUNC_DEF){
+            std::cout<<"def func: "<<i._funcDefName<<std::endl;
+        } else if(i._interSym == I_FUNC_DEF_END){
+            std::cout<<"end def func"<<std::endl;
+        } else if(i._interSym == I_FUNC_CALL){
+            std::cout<<"call func: "<<i._funcCallName<<std::endl;
+        } else if(i._interSym == I_FUNC_CALL_END){
+            std::cout<<"end call func"<<std::endl;
+        } else{
             std::cout<<"???"<<endl;
         }
     }
@@ -109,8 +121,20 @@ int main() {
     //if(errors.size() != 0){
     //    printf("some errors!\n");
     //} else {
-    //    printINTER();
+    //printINTER();
+
+    std::map<std::string, Signal>::iterator iter3;
+    for(iter3 = globalSigTab.begin(); iter3 != globalSigTab.end(); iter3++) {
+        std::cout << iter3->first << "!_________" << std::endl;
+        std::vector<std::string> temp1 = iter3->second._para_tab_name;
+        for(std::string s: temp1){
+            std::cout<<s<<std::endl;
+        }
+
+    }
+
     //}
+    /*
     std::cout<<"_______________"<<std::endl;
     map<std::string, Signal>::iterator iter;
     for(iter = globalSigTab.begin(); iter != globalSigTab.end(); iter++) {
@@ -124,7 +148,8 @@ int main() {
             std::cout << iter2->first << std::endl;
         }
     }
-
+    std::cout<<"===========generate============"<<std::endl;
+    */
     generate();
     return 0;
 }

@@ -152,6 +152,7 @@ void parse_var_def_no_initial(){
 
     newSig._line = line_p;
 
+    newIntermediateCode._initialized = 0;
     newIntermediateCode._name = name_p;
     newIntermediateCode._symProperty = 0;
     parse_new_iden();
@@ -160,6 +161,7 @@ void parse_var_def_no_initial(){
         newIntermediateCode._symProperty = 1;
         get_next_token();
         newIntermediateCode._dem1 = parse_unsigned_int();
+        newSig._dem_num1 =  newIntermediateCode._dem1;
         if(symbol_p != RBRACK) {
             addError("m", words[loc_f_p - 1]._line);
         } else {
@@ -171,6 +173,7 @@ void parse_var_def_no_initial(){
             newIntermediateCode._symProperty = 2;
             get_next_token();
             newIntermediateCode._dem2 = parse_unsigned_int();
+            newSig._dem_num2 = newIntermediateCode._dem2;
             if(symbol_p != RBRACK) {
                 addError("m", words[loc_f_p - 1]._line);
             } else {
@@ -203,6 +206,7 @@ void parse_var_def_no_initial(){
         newSig._line = line_p;
         get_next_token();
 
+        newIntermediateCode._initialized = 0;
         newIntermediateCode._name = name_p;
         newIntermediateCode._symProperty = 0;
         parse_new_iden();
@@ -221,7 +225,8 @@ void parse_var_def_no_initial(){
             newSig._dem = 2;
             newIntermediateCode._symProperty = 2;
             get_next_token();
-            newIntermediateCode._dem2 = parse_unsigned_int();
+            newSig._dem_num2 = parse_unsigned_int();
+            newIntermediateCode._dem2 = newSig._dem_num2;
             if(symbol_p != RBRACK) {
                 addError("m", words[loc_f_p - 1]._line);
             } else {
@@ -230,7 +235,7 @@ void parse_var_def_no_initial(){
         }
         int c;
         if(newIntermediateCode._symProperty == 0){
-            c = 0;
+            c = 1;
         } else if(newIntermediateCode._symProperty == 1){
             c = newIntermediateCode._dem1;
         } else{
@@ -250,6 +255,7 @@ void parse_var_def_no_initial(){
 void parse_var_def_and_initial(){
     //t2<<"parse_var_def_and_initial"<<std::endl;
     //parse_type_iden();
+    newIntermediateCode._initialized = 1;
     if(symbol_p != INTTK && symbol_p != CHARTK)error_parse();
     if(symbol_p == INTTK){
         newSig._type = INT;

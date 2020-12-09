@@ -26,8 +26,8 @@ enum SIG_SYM{
 
 enum INTER_SYM{
     I_CON = 1, I_VAR, I_PRINTF, I_SCANF, I_ASSIGN, I_CAL, I_WHILE, I_FOR, I_IF,
-    I_J, I_JR_RA, I_FUNC_DEF, I_FUNC_CALL, I_LABEL, I_SWITCH, I_SWITCH_IF,
-     I_ARR_GET, I_ARR_ASS, I_CODE
+    I_J, I_JR_RA, I_FUNC_DEF, I_FUNC_DEF_END, I_FUNC_CALL, I_FUNC_CALL_END,
+    I_LABEL, I_SWITCH, I_SWITCH_IF, I_ARR_GET, I_ARR_ASS, I_CODE
 };
 
 class Word{
@@ -128,6 +128,7 @@ public:
     //sym = i_arr_ass: 1:dem1 2:dem2
 
     //var && con
+    int _initialized;
     SIG_SYM _vcType;
     std::vector<int> _intValue;
     std::vector<char> _chValue;
@@ -213,8 +214,12 @@ public:
     std::vector<int>_paraRegNum;
     std::vector<SIG_SYM>_paraType;
 
+    //func_call_end
+
     //func_def
     std::string _funcDefName;
+
+    //func_def_end
 
     //j
     int _jLabelNum;

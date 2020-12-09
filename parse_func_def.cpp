@@ -92,6 +92,11 @@ void parse_func_with_return_def(){
     } else {
         hasReturn = false;
     }
+
+    newIntermediateCode._interSym = I_FUNC_DEF_END;
+    newIntermediateCode._funcDefName = func_name;
+    addToICodes();
+
     get_next_token();
     myPrint("<有返回值函数定义>");
 }
@@ -130,5 +135,10 @@ void parse_func_no_return_def(){
 
     if(symbol_p != RBRACE)error_parse();
     get_next_token();
+
+    newIntermediateCode._interSym = I_FUNC_DEF_END;
+    newIntermediateCode._funcDefName = func_name;
+    addToICodes();
+
     myPrint("<无返回值函数定义>");
 }

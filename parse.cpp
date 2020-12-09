@@ -21,7 +21,11 @@ void parse_program(){
     funcInitialSpaceForSp();
 
     newIntermediateCode._interSym = I_CODE;
-    newIntermediateCode._code = "j main";
+    newIntermediateCode._code = "jal main";
+    addToICodes();
+
+    newIntermediateCode._interSym = I_CODE;
+    newIntermediateCode._code = "j labelend";
     addToICodes();
 
     while(words[loc_f_p + 1]._symbol == IDENFR && words[loc_f_p + 2]._symbol == LPARENT){
@@ -31,9 +35,6 @@ void parse_program(){
             parse_func_with_return_def();
         } else error_parse();
 
-        newIntermediateCode._interSym = I_JR_RA;
-        addToICodes();
-
         clearFuncSigTab();
         clearSig();
 
@@ -42,6 +43,10 @@ void parse_program(){
     parse_main();
     clearFuncSigTab();
     finishCountSpace();
+
+    newIntermediateCode._interSym = I_LABEL;
+    newIntermediateCode._labelName = "end";
+    addToICodes();
     myPrint("<程序>");
 }
 
@@ -159,14 +164,14 @@ void parse_assign_sent(){
         addError("j", line_p);
     }
 
-    if(globalSigTab.count(myTolower(name_p)) != 0){
-        if(globalSigTab[myTolower(name_p)]._type == INT){
+    if(funcSigTab.count(myTolower(name_p)) != 0){
+        if(funcSigTab[myTolower(name_p)]._type == INT){
             newIntermediateCode._assType = INT;
         } else {
             newIntermediateCode._assType = CHAR;
         }
-    } else if(funcSigTab.count(myTolower(name_p)) != 0){
-        if(funcSigTab[myTolower(name_p)]._type == INT){
+    } else if(globalSigTab.count(myTolower(name_p)) != 0){
+        if(globalSigTab[myTolower(name_p)]._type == INT){
             newIntermediateCode._assType = INT;
         } else {
             newIntermediateCode._assType = CHAR;
@@ -217,7 +222,7 @@ void parse_assign_sent(){
             ICodesStack.pop();
             newIntermediateCode._loc2 = expRegNum;
 
-            std::cout<<"@"<<newIntermediateCode._assName<<std::endl;
+            std::cout<<"@"<<newIntermediateCode._assName<<" # ";
             if(funcSigTabMap[myTolower(func_name)].count(myTolower(newIntermediateCode._assName)) != 0) {
                 newIntermediateCode._length = funcSigTabMap[myTolower(func_name)][myTolower(newIntermediateCode._assName)]._dem_num2;
             } else if(globalSigTab.count(myTolower(newIntermediateCode._assName)) != 0){
@@ -225,6 +230,7 @@ void parse_assign_sent(){
             } else {
                 std::cout<<"wrong when find length! in ass"<<std::endl;
             }
+            std::cout<<"length = "<<newIntermediateCode._length<<std::endl;
             ICodesStack.push(newIntermediateCode);
 
             if(temp != INT && temp != CONST_INT){
@@ -244,8 +250,15 @@ void parse_assign_sent(){
             newIntermediateCode._arr_ass_regNum = expRegNum;
             addToICodes();
         } else if(symbol_p == ASSIGN){
+            ICodesStack.push(newIntermediateCode);
+
             get_next_token();
             parse_expression();
+
+            newIntermediateCode = ICodesStack.top();
+            ICodesStack.pop();
+            newIntermediateCode._arr_ass_regNum = expRegNum;
+            addToICodes();
         } else error_parse();
     } else error_parse();
     myPrint("<赋值语句>");
@@ -276,14 +289,15 @@ void parse_read_sent(){
         addError("j", line_p);
     }
     newIntermediateCode._scName = name_p;
-    if(globalSigTab.count(myTolower(name_p)) != 0){
-        if(globalSigTab[myTolower(name_p)]._type == INT){
+
+    if(funcSigTab.count(myTolower(name_p)) != 0){
+        if(funcSigTab[myTolower(name_p)]._type == INT){
             newIntermediateCode._scType = INT;
         } else {
             newIntermediateCode._scType = CHAR;
         }
-    } else if(funcSigTab.count(myTolower(name_p)) != 0){
-        if(funcSigTab[myTolower(name_p)]._type == INT){
+    } else if(globalSigTab.count(myTolower(name_p)) != 0){
+        if(globalSigTab[myTolower(name_p)]._type == INT){
             newIntermediateCode._scType = INT;
         } else {
             newIntermediateCode._scType = CHAR;
@@ -371,7 +385,7 @@ void parse_return_sent(){
         newIntermediateCode._cal1Type = 1;
         newIntermediateCode._reg1 = expRegNum;
         newIntermediateCode._cal2Type = 4;
-        newIntermediateCode._int1 = 0;
+        newIntermediateCode._int2 = 0;
         newIntermediateCode._resType = 2;
         newIntermediateCode._resReg2 = 2;
         newIntermediateCode._symProperty = 1;
@@ -385,6 +399,9 @@ void parse_return_sent(){
             addError("h", line_p);
         }
     }
+    newIntermediateCode._interSym = I_FUNC_DEF_END;
+    newIntermediateCode._funcDefName = func_name;
+    addToICodes();
     myPrint("<返回语句>");
 }
 

@@ -8,6 +8,11 @@
 #include "parse.h"
 
 void parse_cond_sent(){
+    newIntermediateCode._interSym = I_IF;
+    newIntermediateCode._endLabel = labelCount;
+    labelCount++;
+    ICodesStack.push(newIntermediateCode);
+
     //t2<<"parse_cond_sent"<<std::endl;
     if(symbol_p != IFTK)error_parse();
     get_next_token();
@@ -16,9 +21,6 @@ void parse_cond_sent(){
 
     parse_condition();
 
-    newIntermediateCode._interSym = I_IF;
-    newIntermediateCode._endLabel = labelCount;
-    labelCount++;
     lastICNum.push(intermediateCodes.size());
     addToICodes();
 
@@ -31,8 +33,11 @@ void parse_cond_sent(){
     parse_sent();
 
     if(symbol_p == ELSETK){
+
         int tempNum = lastICNum.top();
         intermediateCodes[tempNum]._elseLabel = labelCount;
+
+        intermediateCodes[tempNum]._symProperty = 1;
 
         newIntermediateCode._interSym = I_J;
         newIntermediateCode._jLabelNum = intermediateCodes[tempNum]._endLabel;
@@ -46,10 +51,12 @@ void parse_cond_sent(){
 
         get_next_token();
         parse_sent();
+    } else {
+        int tempNum = lastICNum.top();
+        intermediateCodes[tempNum]._symProperty = 0;
     }
     int tempNum = lastICNum.top();
     lastICNum.pop();
-    intermediateCodes[tempNum]._endLabel = labelCount;
 
     newIntermediateCode._interSym = I_LABEL;
     newIntermediateCode._labelName = std::to_string(intermediateCodes[tempNum]._endLabel);
@@ -88,6 +95,8 @@ void parse_condition(){
     }
     parse_relation();
     SIG_SYM temp2 = parse_expression();
+    newIntermediateCode = ICodesStack.top();
+    ICodesStack.pop();
     newIntermediateCode._judgeType = relation;
     newIntermediateCode._judgeReg1 = exp1;
     newIntermediateCode._judgeReg2 = expRegNum;
@@ -100,6 +109,15 @@ void parse_condition(){
 void parse_loop_sent() {
     if (symbol_p == WHILETK) {
 
+        newIntermediateCode._interSym = I_WHILE;
+        newIntermediateCode._labelStart = labelCount;
+        ICodesStack.push(newIntermediateCode);
+        labelCount++;
+
+        newIntermediateCode._interSym = I_LABEL;
+        newIntermediateCode._labelName = std::to_string(labelCount-1);
+        addToICodes();
+
         get_next_token();
         if (symbol_p != LPARENT)error_parse();
         get_next_token();
@@ -110,11 +128,7 @@ void parse_loop_sent() {
             get_next_token();
         }
 
-        newIntermediateCode._interSym = I_WHILE;
-        newIntermediateCode._labelStart = labelCount;
-        labelCount++;
         lastICNum.push(intermediateCodes.size());
-
         addToICodes();
 
         parse_sent();
@@ -137,7 +151,7 @@ void parse_loop_sent() {
         get_next_token();
 
         //i = 1(example)
-        newIntermediateCode._interSym = I_FOR;
+        //newIntermediateCode._interSym = I_FOR;
         newIntermediateCode._loopName1 = name_p;
         ICodesStack.push(newIntermediateCode);
 
@@ -148,7 +162,20 @@ void parse_loop_sent() {
 
         newIntermediateCode = ICodesStack.top();
         ICodesStack.pop();
-        newIntermediateCode._initialReg = expRegNum;
+        newIntermediateCode._interSym = I_ASSIGN;
+        newIntermediateCode._assName = newIntermediateCode._loopName1;
+        newIntermediateCode._assExpResReg = expRegNum;
+        addToICodes();
+
+        //newIntermediateCode._initialReg = expRegNum;
+        newIntermediateCode._interSym = I_FOR;
+        newIntermediateCode._labelStart = labelCount;
+        labelCount++;
+        ICodesStack.push(newIntermediateCode);
+
+        newIntermediateCode._interSym = I_LABEL;
+        newIntermediateCode._labelName = std::to_string(labelCount - 1);
+        addToICodes();
 
         if(symbol_p != SEMICN) {
             addError("k", words[loc_f_p - 1]._line);
@@ -182,17 +209,14 @@ void parse_loop_sent() {
         parse_plus();
 
         newIntermediateCode._step = parse_step_length();
+        lastICNum.push(intermediateCodes.size());
+        addToICodes();
 
         if(symbol_p != RPARENT) {
             addError("l", words[loc_f_p - 1]._line);
         } else {
             get_next_token();
         }
-
-        newIntermediateCode._labelStart = labelCount;
-        labelCount++;
-        lastICNum.push(intermediateCodes.size());
-        addToICodes();
 
         parse_sent();
 
@@ -202,6 +226,7 @@ void parse_loop_sent() {
         labelCount++;
 
         newIntermediateCode._interSym = I_CAL;
+        newIntermediateCode._resType = 1;
         if(intermediateCodes[tempNum]._symProperty == 1){
             newIntermediateCode._symProperty = 1;
         } else if(intermediateCodes[tempNum]._symProperty == 2){

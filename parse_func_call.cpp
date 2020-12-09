@@ -20,36 +20,53 @@ SIG_SYM parse_func_call_with_return(){
     }
     call_func_name.push(name_p);
     newIntermediateCode._funcCallName = name_p;
+    ICodesStack.push(newIntermediateCode);
 
     parse_iden();
     if(symbol_p != LPARENT)error_parse();
     get_next_token();
 
     parse_val_para_tab();
+    addToICodes();
 
     if(symbol_p != RPARENT) {
         addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
+
+    newIntermediateCode._interSym = I_FUNC_CALL_END;
+    newIntermediateCode._funcCallName = call_func_name.top();
+    addToICodes();
+
     myPrint("<有返回值函数调用语句>");
     SIG_SYM temp = globalSigTab[myTolower(call_func_name.top())]._returnType;
     call_func_name.pop();
     return temp;
 }
 SIG_SYM parse_func_call_no_return(){
+    newIntermediateCode._interSym = I_FUNC_CALL;
+    newIntermediateCode._funcCallName = name_p;
+    ICodesStack.push(newIntermediateCode);
+
     call_func_name.push(name_p);
     parse_iden();
     if(symbol_p != LPARENT)error_parse();
     get_next_token();
 
     parse_val_para_tab();
+    addToICodes();
 
     if(symbol_p != RPARENT) {
         addError("l", words[loc_f_p - 1]._line);
     } else {
         get_next_token();
     }
+
+    newIntermediateCode._interSym = I_FUNC_CALL_END;
+    newIntermediateCode._funcCallName = call_func_name.top();
+    addToICodes();
+
     myPrint("<无返回值函数调用语句>");
     call_func_name.pop();
     return NONETYPE;
@@ -59,7 +76,13 @@ void parse_val_para_tab(){
     std::vector<SIG_SYM> temp_list;
     if(symbol_p != RPARENT){
         temp_list.push_back(parse_expression());
+
+        newIntermediateCode = ICodesStack.top();
+        ICodesStack.pop();
+        newIntermediateCode._paraRegNum.clear();
         newIntermediateCode._paraRegNum.push_back(expRegNum);
+        ICodesStack.push(newIntermediateCode);
+
         if(temp_list[temp_list.size() - 1] != NONETYPE){
             num++;
         }
@@ -67,9 +90,14 @@ void parse_val_para_tab(){
             get_next_token();
             temp_list.push_back(parse_expression());
             num++;
+            newIntermediateCode = ICodesStack.top();
+            ICodesStack.pop();
             newIntermediateCode._paraRegNum.push_back(expRegNum);
+            ICodesStack.push(newIntermediateCode);
         }
     }
+    newIntermediateCode = ICodesStack.top();
+    ICodesStack.pop();
     newIntermediateCode._paraType = temp_list;
 
     if(num == globalSigTab[myTolower(call_func_name.top())]._para_tab.size()){

@@ -18,6 +18,10 @@ void addToICodes(){
 
     newIntermediateCode._paraRegNum.clear();
     newIntermediateCode._paraType.clear();
+
+    if(intermediateCodes.size() == 129){
+        std::cout<<"!"<<std::endl;
+    }
 }
 
 bool isSameType1(SIG_SYM sig1, SIG_SYM sig2){
@@ -97,7 +101,12 @@ void error_parse(){
 void get_next_token(){
     loc_f_p++;
     symbol_p = words[loc_f_p]._symbol;
-    name_p = words[loc_f_p]._name;
+    if(symbol_p == IDENFR){
+        name_p = myTolower(words[loc_f_p]._name);
+    } else {
+        name_p = words[loc_f_p]._name;
+    }
+
     line_p = words[loc_f_p]._line;
     myPrint(names[words[loc_f_p - 1]._symbol] + " "+ words[loc_f_p - 1]._name);
 }

@@ -39,7 +39,7 @@ void parse_case_sent(){
 
     newIntermediateCode._interSym = I_LABEL;
     newIntermediateCode._labelName = std::to_string(endLabelStack.top());
-    labelStack.pop();
+    endLabelStack.pop();
     addToICodes();
 
     if(symbol_p != RBRACE)error_parse();
@@ -60,7 +60,7 @@ void parse_case_tab(SIG_SYM sig_sym, int lastExpRegNum){
     parse_case_sub_sent(sig_sym);//里面有一个addToICodes
 
     newIntermediateCode._interSym = I_J;
-    newIntermediateCode._labelName = std::to_string(endLabelStack.top());
+    newIntermediateCode._jLabelNum = endLabelStack.top();
     addToICodes();
 
     while(symbol_p == CASETK){
@@ -79,7 +79,7 @@ void parse_case_tab(SIG_SYM sig_sym, int lastExpRegNum){
         parse_case_sub_sent(sig_sym);
 
         newIntermediateCode._interSym = I_J;
-        newIntermediateCode._labelName = std::to_string(endLabelStack.top());
+        newIntermediateCode._jLabelNum = endLabelStack.top();
         addToICodes();
     }
     myPrint("<情况表>");
@@ -101,6 +101,11 @@ void parse_case_sub_sent(SIG_SYM sig_sym){
     myPrint("<情况子语句>");
 }
 void parse_default(){
+    newIntermediateCode._interSym = I_LABEL;
+    newIntermediateCode._labelName = std::to_string(labelStack.top());
+    labelStack.pop();
+    addToICodes();
+
     if(symbol_p != DEFAULTTK) {
         addError("p", line_p);
         return;

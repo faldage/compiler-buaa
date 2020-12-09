@@ -15,6 +15,7 @@ int factorReg;
 
 SIG_SYM parse_expression(){
     SIG_SYM res = NONETYPE;
+    /*
     int thisExpRegNum = regNum;
     regNum++;
     funcAddSpaceForSp();
@@ -40,7 +41,30 @@ SIG_SYM parse_expression(){
     newIntermediateCode._cal2Type = 1;
     newIntermediateCode._reg2 = itemReg;
     addToICodes();
-
+*/
+    int tempCal = 1;
+    if(symbol_p == PLUS || symbol_p == MINU){
+        if(symbol_p == PLUS){
+            tempCal = 1;
+        } else {
+            tempCal = 2;
+        }
+        res = INT;
+        get_next_token();
+    }
+    SIG_SYM temp = parse_item();
+    int thisExpRegNum = itemReg;
+    if(tempCal == 2){
+        newIntermediateCode._interSym = I_CAL;
+        newIntermediateCode._symProperty = tempCal;
+        newIntermediateCode._resType = 1;
+        newIntermediateCode._resRegNum = thisExpRegNum;
+        newIntermediateCode._cal1Type = 4;
+        newIntermediateCode._int1 = 0;
+        newIntermediateCode._cal2Type = 1;
+        newIntermediateCode._reg2 = thisExpRegNum;
+        addToICodes();
+    }
 
     if(res == NONETYPE){
         res = temp;
@@ -72,6 +96,7 @@ SIG_SYM parse_expression(){
 }
 SIG_SYM parse_item(){
     int tempCal;
+    /*
     int thisItemRegNum = regNum;
     regNum++;
     funcAddSpaceForSp();
@@ -86,6 +111,9 @@ SIG_SYM parse_item(){
     newIntermediateCode._cal2Type = 1;
     newIntermediateCode._reg2 = factorReg;
     addToICodes();
+    */
+    SIG_SYM res = parse_factor();
+    int thisItemRegNum = factorReg;
 
     while(symbol_p == MULT || symbol_p == DIV){
         if(symbol_p == MULT){
@@ -129,7 +157,8 @@ SIG_SYM parse_factor(){
         newIntermediateCode._ch2= parse_char();
     } else if(symbol_p == LPARENT){
         get_next_token();
-        res = parse_expression();
+        res = INT;
+        parse_expression();
         if(symbol_p != RPARENT) {
             addError("l", words[loc_f_p - 1]._line);
         } else {
@@ -143,10 +172,10 @@ SIG_SYM parse_factor(){
 
 
         SIG_SYM temp;
-        if(globalSigTab.count(myTolower(name_p)) != 0){
-            temp = globalSigTab[myTolower(name_p)]._type;
-        } else if(funcSigTab.count(myTolower(name_p)) != 0){
+        if(funcSigTab.count(myTolower(name_p)) != 0){
             temp = funcSigTab[myTolower(name_p)]._type;
+        } else if(globalSigTab.count(myTolower(name_p)) != 0){
+            temp = globalSigTab[myTolower(name_p)]._type;
         } else {
             addError("c", line_p);
         }
@@ -155,14 +184,22 @@ SIG_SYM parse_factor(){
         } else if (temp == CHAR || temp == CONST_CHAR){
             res = CHAR;
         }
-
+        newIntermediateCode._interSym = I_CAL;
+        newIntermediateCode._resType = 1;
         newIntermediateCode._vcType = res;
         ICodesStack.push(newIntermediateCode);
+
         if(words[loc_f_p + 1]._symbol == LBRACK){
+            newIntermediateCode = ICodesStack.top();
+            ICodesStack.pop();
+            newIntermediateCode._interSym = I_ARR_GET;
+            ICodesStack.push(newIntermediateCode);
+
             isArray = 1;
             get_next_token();
             get_next_token();
             SIG_SYM temp = parse_expression();
+
             if(temp !=INT && temp != CONST_INT){
                 addError("i", line_p);
             }
@@ -214,8 +251,18 @@ SIG_SYM parse_factor(){
                 addToICodes();
             }
         } else if(words[loc_f_p + 1]._symbol == LPARENT){
+            isArray = 1;//借用
+            ICodesStack.pop();
             res = parse_func_call_with_return();
-
+            newIntermediateCode._interSym = I_CAL;
+            newIntermediateCode._symProperty = 1;
+            newIntermediateCode._resType = 1;
+            newIntermediateCode._resRegNum = thisFactorRegNum;
+            newIntermediateCode._cal1Type = 5;
+            newIntermediateCode._sReg1 = 2;
+            newIntermediateCode._cal2Type = 4;
+            newIntermediateCode._int2 = 0;
+            addToICodes();
         } else{
             newIntermediateCode = ICodesStack.top();
             ICodesStack.pop();

@@ -52,7 +52,9 @@ void g_if();
 void g_j();
 void g_jr_ra();
 void g_func_def();
+void g_func_def_end();
 void g_func_call();
+void g_func_call_end();
 void g_label();
 void g_switch();
 void g_switch_if();
@@ -68,7 +70,7 @@ void moveToTemp(int tempNum, VarLoc varLoc);
 void moveFromTemp(VarLoc varLoc, int tempNum);
 void move(VarLoc from, VarLoc to);
 
-extern std::map<std::string, VarLoc>mainLocAssign;//变量名对应位置 全局+变量
+extern std::map<std::string, VarLoc>globalLocAssign;//变量名对应位置 全局+变量
 extern std::map<std::string, VarLoc>funcLocAssign;//函数中变量名对应的位置
 
 extern std::map<int, int>regAssign;//寄存器已分配的情况
