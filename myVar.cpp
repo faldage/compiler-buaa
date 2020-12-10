@@ -30,6 +30,10 @@ void funcAddSpaceForSp(){
     spCount++;
 }
 
+void funcSubSpaceForSp(){
+    spCount--;
+}
+
 void funcInitialSpaceForSp(){
     spCount = 0;
 }

@@ -11,5 +11,7 @@
 
 extern int itemReg;
 extern int factorReg;
+extern int ifFactorIsCon;
+extern int factorValue;
 
 #endif

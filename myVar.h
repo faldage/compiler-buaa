@@ -240,6 +240,7 @@ int transNum(std::string str);
 std::string myTolower(std::string myStr);
 void finishCountSpace();
 void funcAddSpaceForSp();
+void funcSubSpaceForSp();
 void funcInitialSpaceForSp();
 
 extern std::string names[50];
