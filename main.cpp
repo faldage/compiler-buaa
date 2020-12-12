@@ -49,10 +49,10 @@ void printINTER(){
             if(i._symProperty == 1){
                 std::cout<<i._priStr<<endl;
             } else {
-                std::cout<<"exp"<<" t"<<i._priExpResReg<<endl;
+                std::cout<<"exp"<<" t"<<i._priValue._value<<endl;
             }
         } else if(i._interSym == I_ASSIGN){
-            std::cout<<"ASSIGN "<<i._assName<< " t"<<i._assExpResReg <<endl;
+            std::cout<<"ASSIGN "<<i._assName<< " t"<<i._assValue._value <<endl;
         } else if(i._interSym == I_CAL){
             if(i._symProperty == 1){
                 std::cout<<"ADD ";
@@ -82,7 +82,7 @@ void printINTER(){
                 std::cout<<"(iden)"<<i._iden2<<endl;
             } else if(i._cal2Type == 3){
                 std::cout<<"(char)"<<i._ch2<<endl;
-            } else if(i._cal1Type == 4){
+            } else if(i._cal2Type == 4){
                 std::cout<<"(int)"<<i._int2<<","<<std::endl;
             } else {
                 std::cout<<"(sReg)"<<i._sReg2<<","<<std::endl;
@@ -121,7 +121,7 @@ int main() {
     //if(errors.size() != 0){
     //    printf("some errors!\n");
     //} else {
-    //printINTER();
+    printINTER();
 
     std::map<std::string, Signal>::iterator iter3;
     for(iter3 = globalSigTab.begin(); iter3 != globalSigTab.end(); iter3++) {

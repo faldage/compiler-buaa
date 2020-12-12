@@ -137,19 +137,31 @@ void assString(){
     }
 }
 
-void g_assign(){
-    std::string nameRes = ":"+ std::to_string(code._assExpResReg);
+void g_assign() {
+    std::vector<int>toFree;
+    int tempReg1 = assignTempReg();
+    toFree.push_back(tempReg1);
 
-    if(funcLocAssign.count(code._assName) != 0){
-        move(funcLocAssign[nameRes], funcLocAssign[code._assName]);
-    } else {
-        if(generateFuncName == ":"){
-            move(globalLocAssign[myTolower(nameRes)], globalLocAssign[myTolower(code._assName)]);
+    if (code._assValue._type == 1) {
+        std::string nameRes = ":" + std::to_string(code._assValue._value);
+        if (funcLocAssign.count(code._assName) != 0) {
+            move(funcLocAssign[nameRes], funcLocAssign[code._assName]);
         } else {
-            move(funcLocAssign[myTolower(nameRes)], globalLocAssign[myTolower(code._assName)]);
+            if (generateFuncName == ":") {
+                move(globalLocAssign[myTolower(nameRes)], globalLocAssign[myTolower(code._assName)]);
+            } else {
+                move(funcLocAssign[myTolower(nameRes)], globalLocAssign[myTolower(code._assName)]);
+            }
+        }
+    } else {
+        output_mips << "li $" << tempReg1 << " " << code._assValue._value << std::endl;
+        if (funcLocAssign.count(code._assName) != 0) {
+            moveFromTemp(funcLocAssign[code._assName], tempReg1);
+        } else {
+            moveFromTemp(globalLocAssign[code._assName], tempReg1);
         }
     }
-
+    freeTempReg(toFree);
 }
 
 void g_printf(){
@@ -159,24 +171,26 @@ void g_printf(){
         output_mips<<"li $v0 4"<< "# at " << __LINE__ << std::endl;
         output_mips<<"syscall"<< "# at " << __LINE__ << std::endl;
     } else {
-        std::string temp = ":" + std::to_string(code._priExpResReg);
-        VarLoc varLoc;
+        if(code._priValue._type == 1){
+            std::string temp = ":" + std::to_string(code._priValue._value);
+            VarLoc varLoc;
 
-        if(generateFuncName == ":"){
-            varLoc = globalLocAssign[myTolower(temp)];
+            if(generateFuncName == ":"){
+                varLoc = globalLocAssign[temp];
+            } else {
+                varLoc = funcLocAssign[temp];
+            }
+            if(varLoc.loc_type == 1){
+                output_mips<<"move $a0 $"<<varLoc.num<< "# at " << __LINE__ << std::endl;
+            } else if(varLoc.loc_type == 3){
+                output_mips<<"lw $a0 ";
+                output_mips<<varLoc.num<<"($gp)"<< "# at " << __LINE__ << std::endl;
+            } else if(varLoc.loc_type == 4){
+                output_mips<<"lw $a0 ";
+                output_mips<<varLoc.num<<"($sp)"<< "# at " << __LINE__ << std::endl;
+            }
         } else {
-            varLoc = funcLocAssign[temp];
-        }
-
-
-        if(varLoc.loc_type == 1){
-            output_mips<<"move $a0 $"<<varLoc.num<< "# at " << __LINE__ << std::endl;
-        } else if(varLoc.loc_type == 3){
-            output_mips<<"lw $a0 ";
-            output_mips<<varLoc.num<<"($gp)"<< "# at " << __LINE__ << std::endl;
-        } else if(varLoc.loc_type == 4){
-            output_mips<<"lw $a0 ";
-            output_mips<<varLoc.num<<"($sp)"<< "# at " << __LINE__ << std::endl;
+            output_mips<<"li $a0 "<<code._priValue._value<<std::endl;
         }
 
         output_mips<<"li $v0 ";
@@ -319,7 +333,6 @@ void g_cal(){
     } else {
         tempReg1 = assignTempReg();
         toFree.push_back(tempReg1);
-
     }
     if(code._cal2Type == 5){
         tempReg2 = code._sReg2;
@@ -362,6 +375,10 @@ void g_cal(){
             }
         }
 
+    } else if(code._cal1Type == 4 && code._int1 != 0){
+        output_mips<<"li $"<<tempReg1<<" "<<code._int1<<std::endl;
+    } else if(code._cal1Type == 3&& code._ch1 != 0){
+        output_mips<<"li $"<<tempReg1<<" "<<int(code._ch1)<<std::endl;
     }
 
     if(code._cal2Type == 1 || code._cal2Type == 2){
@@ -401,33 +418,20 @@ void g_cal(){
         output_mips<<"wrong cal type!"<<std::endl;
     }
 
-    if(code._cal1Type == 3 || (code._cal1Type == 4 && code._int1 != 0)){
-        if(code._cal2Type == 1 || code._cal2Type == 2){
-            output_mips<< " $"<<tempReg2;
-        } else if(code._cal2Type == 3){
-            output_mips<< " "<<int(code._ch2);
-        } else {
-            output_mips<< " "<<code._int2;
-        }
-        if(code._cal1Type == 3){
-            output_mips<< " "<<int(code._ch1)<< "# at " << __LINE__ << std::endl;
-        } else {
-            output_mips<< " "<<code._int1<< "# at " << __LINE__ << std::endl;
-        }
-    } else {
-        if(code._cal1Type == 4){
-            output_mips<<" $0";
-        } else {
-            output_mips<< " $"<<tempReg1;
-        }
+    if(code._cal1Type == 4 && code._int1 == 0){
+        output_mips<< " $0";
+    } else if(code._cal1Type == 3&& code._ch1 == 0){
+        output_mips<< " $0";
+    } else{
+        output_mips<< " $"<<tempReg1;
+    }
 
-        if(code._cal2Type == 1 || code._cal2Type == 2){
-            output_mips<< " $"<<tempReg2<< "# at " << __LINE__ << std::endl;
-        } else if(code._cal2Type == 3){
-            output_mips<< " "<<int(code._ch2)<< "# at " << __LINE__ << std::endl;
-        } else {
-            output_mips<< " "<<code._int2<< "# at " << __LINE__ << std::endl;
-        }
+    if(code._cal2Type == 1 || code._cal2Type == 2 || code._cal2Type == 5){
+        output_mips<< " $"<<tempReg2<<std::endl;
+    } else if(code._cal1Type == 3){
+        output_mips<< " "<<int(code._ch2)<<std::endl;
+    } else {
+        output_mips<< " "<<code._int2<<std::endl;
     }
 
     if(code._resType == 1){
@@ -451,33 +455,52 @@ void g_while(){
     toFree.push_back(tempReg1);
     toFree.push_back(tempReg2);
     std::string name1, name2;
-    name1 = ":" + std::to_string(code._judgeReg1);
-    name2 = ":" + std::to_string(code._judgeReg2);
+    name1 = ":" + std::to_string(code._judgeValue1._value);
+    name2 = ":" + std::to_string(code._judgeValue2._value);
 
     if(generateFuncName == ":"){
-        moveToTemp(tempReg1, globalLocAssign[name1]);
-        moveToTemp(tempReg2, globalLocAssign[name2]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg1, globalLocAssign[name1]);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg2, globalLocAssign[name2]);
+        }
+
     } else{
-        moveToTemp(tempReg1, funcLocAssign[name1]);
-        moveToTemp(tempReg2, funcLocAssign[name2]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg1, funcLocAssign[name1]);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg2, funcLocAssign[name2]);
+        }
     }
 
 
     if(code._judgeType == 1){ //>=:continue else: _labelEnd
-        output_mips<<"blt $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"blt $"<<tempReg1;
     } else if(code._judgeType == 2){//>
-        output_mips<<"ble $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"ble $"<<tempReg1;
     } else if(code._judgeType == 3){//<=
-        output_mips<<"bgt $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bgt $"<<tempReg1;
     } else if(code._judgeType == 4){//<
-        output_mips<<"bge $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bge $"<<tempReg1;
     } else if(code._judgeType == 5){//==
-        output_mips<<"bne $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bne $"<<tempReg1;
     } else if(code._judgeType == 6){//!=
-        output_mips<<"beq $"<<tempReg1<<" $"<<tempReg2<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"beq $"<<tempReg1;
     } else{
         output_mips<<"wrong judge type in while!"<< "# at " << __LINE__ << std::endl;
     }
+    if(code._judgeValue2._type == 1){
+        output_mips<<" $"<<tempReg2;
+    } else {
+        output_mips<<" "<<code._judgeValue2._value;
+    }
+    output_mips<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
     freeTempReg(toFree);
 }
 
@@ -488,33 +511,53 @@ void g_for(){
     int tempReg4 = assignTempReg();
     toFree.push_back(tempReg3);
     toFree.push_back(tempReg4);
-    std::string name3 = ":" + std::to_string(code._judgeReg1);
-    std::string name4 = ":" + std::to_string(code._judgeReg2);
+    std::string name3 = ":" + std::to_string(code._judgeValue1._value);
+    std::string name4 = ":" + std::to_string(code._judgeValue2._value);
 
     if(generateFuncName == ":"){
-        moveToTemp(tempReg3, globalLocAssign[name3]);
-        moveToTemp(tempReg4, globalLocAssign[name4]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg3, globalLocAssign[name3]);
+        } else {
+            output_mips<<"li $"<<tempReg3<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg4, globalLocAssign[name4]);
+        }
+
     } else{
-        moveToTemp(tempReg3, funcLocAssign[name3]);
-        moveToTemp(tempReg4, funcLocAssign[name4]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg3, funcLocAssign[name3]);
+        } else {
+            output_mips<<"li $"<<tempReg3<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg4, funcLocAssign[name4]);
+        }
     }
 
 
     if(code._judgeType == 1){ //>=:continue else: _labelEnd
-        output_mips<<"blt $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"blt $"<<tempReg3;
     } else if(code._judgeType == 2){//>
-        output_mips<<"ble $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"ble $"<<tempReg3;
     } else if(code._judgeType == 3){//<=
-        output_mips<<"bgt $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bgt $"<<tempReg3;
     } else if(code._judgeType == 4){//<
-        output_mips<<"bge $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bge $"<<tempReg3;
     } else if(code._judgeType == 5){//==
-        output_mips<<"bne $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"bne $"<<tempReg3;
     } else if(code._judgeType == 6){//!=
-        output_mips<<"beq $"<<tempReg3<<" $"<<tempReg4<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
+        output_mips<<"beq $"<<tempReg3;
     } else{
         output_mips<<"wrong judge type in for!"<< "# at " << __LINE__ << std::endl;
     }
+
+    if(code._judgeValue2._type == 1){
+        output_mips<<" $"<<tempReg4;
+    } else {
+        output_mips<<" "<<code._judgeValue2._value;
+    }
+    output_mips<<" label"<<code._labelEnd<< "# at " << __LINE__ << std::endl;
     freeTempReg(toFree);
 }
 
@@ -525,15 +568,28 @@ void g_if(){
     toFree.push_back(tempReg1);
     toFree.push_back(tempReg2);
     std::string name1, name2;
-    name1 = ":" + std::to_string(code._judgeReg1);
-    name2 = ":" + std::to_string(code._judgeReg2);
+    name1 = ":" + std::to_string(code._judgeValue1._value);
+    name2 = ":" + std::to_string(code._judgeValue2._value);
 
     if(generateFuncName == ":"){
-        moveToTemp(tempReg1, globalLocAssign[name1]);
-        moveToTemp(tempReg2, globalLocAssign[name2]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg1, globalLocAssign[name1]);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg2, globalLocAssign[name2]);
+        }
+
     } else{
-        moveToTemp(tempReg1, funcLocAssign[name1]);
-        moveToTemp(tempReg2, funcLocAssign[name2]);
+        if(code._judgeValue1._type == 1){
+            moveToTemp(tempReg1, funcLocAssign[name1]);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._judgeValue1._value<<std::endl;
+        }
+        if(code._judgeValue2._type == 1){
+            moveToTemp(tempReg2, funcLocAssign[name2]);
+        }
     }
 
     if(code._judgeType == 1){ //>=:continue else: _labelEnd
@@ -552,7 +608,13 @@ void g_if(){
         output_mips<<"wrong judge type in if! = "<<code._judgeType<< "# at " << __LINE__ << std::endl;
     }
 
-    output_mips<<"$"<<tempReg1<<" $"<<tempReg2<<" label";
+    output_mips<<"$"<<tempReg1;
+    if(code._judgeValue2._type == 1){
+        output_mips<<" $"<<tempReg2<<" label";
+    } else {
+        output_mips<<" "<<code._judgeValue2._value<<" label";
+    }
+
     if(code._symProperty == 0){
         output_mips<<code._endLabel<< "# at " << __LINE__ << std::endl;
     } else if (code._symProperty == 1){
@@ -608,21 +670,29 @@ void g_func_call(){
     std::vector<int> toFree;
     toFree.push_back(tempReg);
     for(int i = 0; i < temp; i++){
-        std::string name = ":" + std::to_string(code._paraRegNum[i]);
+        std::string name = ":" + std::to_string(code._paraRegNum[i]._value);
         VarLoc tempVarLoc;
-        if(generateFuncName == ":"){
-            tempVarLoc = globalLocAssign[name];
+
+        if(code._paraRegNum[i]._type == 1){
+            if(generateFuncName == ":"){
+                tempVarLoc = globalLocAssign[name];
+            } else {
+                tempVarLoc = funcLocAssign[name];
+            }
+
+            if(tempVarLoc.loc_type == 4){
+                tempVarLoc.num += temp * 4;
+            }
+
+            moveToTemp(tempReg, tempVarLoc);
+            VarLoc varLoc = VarLoc(4, i * 4);
+            moveFromTemp(varLoc, tempReg);
         } else {
-            tempVarLoc = funcLocAssign[name];
+            output_mips<<"li $"<<tempReg<<" "<<code._paraRegNum[i]._value<<std::endl;
+            VarLoc varLoc = VarLoc(4, i * 4);
+            moveFromTemp(varLoc, tempReg);
         }
 
-        if(tempVarLoc.loc_type == 4){
-            tempVarLoc.num += temp * 4;
-        }
-
-        moveToTemp(tempReg, tempVarLoc);
-        VarLoc varLoc = VarLoc(4, i * 4);
-        moveFromTemp(varLoc, tempReg);
     }
 
     output_mips<<"jal "<<code._funcCallName<< "# at " << __LINE__ << std::endl;
@@ -647,13 +717,18 @@ void g_switch_if(){
     std::vector<int> toFree;
     toFree.push_back(tempReg1);
     std::string name1;
-    name1 = ":" + std::to_string(code._switchReg);
+    name1 = ":" + std::to_string(code._switchValue._value);
 
-    if(generateFuncName == ":"){
-        moveToTemp(tempReg1, globalLocAssign[name1]);
-    } else{
-        moveToTemp(tempReg1, funcLocAssign[name1]);
+    if(code._switchValue._type == 1){
+        if(generateFuncName == ":"){
+            moveToTemp(tempReg1, globalLocAssign[name1]);
+        } else{
+            moveToTemp(tempReg1, funcLocAssign[name1]);
+        }
+    } else {
+        output_mips<<"li $"<<tempReg1<<" "<<code._switchValue._value<<std::endl;
     }
+
 
     if(code._swType == INT){
         output_mips<<"bne $"<<tempReg1<<" "<<code._intValue[0]<<" label"<<code._nextIfLabel<< "# at " << __LINE__ << std::endl;
@@ -681,8 +756,12 @@ void g_arr_get(){
     VarLoc varLoc0, varLoc1, varLoc2, varLoc3;
     if(generateFuncName == ":"){
         varLoc0 = globalLocAssign[myTolower(name0)];
-        varLoc1 = globalLocAssign[myTolower(name1)];
-        varLoc2 = globalLocAssign[myTolower(name2)];
+        if(code._loc1Type == 1){
+            varLoc1 = globalLocAssign[myTolower(name1)];
+        }
+        if(code._loc2Type == 1){
+            varLoc2 = globalLocAssign[myTolower(name2)];
+        }
         if(globalLocAssign.count(name3) == 0){
             globalLocAssign[name3] = assignNewLoc();
         }
@@ -695,23 +774,40 @@ void g_arr_get(){
         } else {
             std::cout<<name0<<":"<<"1231111111111"<< "# at " << __LINE__ << std::endl;
         }
-        varLoc1 = funcLocAssign[myTolower(name1)];
-        varLoc2 = funcLocAssign[myTolower(name2)];
+        if(code._loc1Type == 1){
+            varLoc1 = funcLocAssign[myTolower(name1)];
+        }
+        if(code._loc2Type == 1){
+            varLoc2 = funcLocAssign[myTolower(name2)];
+        }
         if(globalLocAssign.count(name3) == 0){
             funcLocAssign[myTolower(name3)] = assignNewLoc();
         }
         varLoc3 = funcLocAssign[name3];
     }
 
-    moveToTemp(tempReg1, varLoc1);
-    moveToTemp(tempReg2, varLoc2);
 
     if(code._symProperty == 2){
+        if(code._loc1Type == 1){
+            moveToTemp(tempReg1, varLoc1);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._locInt1<<std::endl;
+        }
         output_mips<<"mul $"<<tempReg3<<" $"<<tempReg1<<" "<<code._length<< "# at " << __LINE__ << std::endl;
         //mul t2 t1 length
-        output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" $"<<tempReg2<< "# at " << __LINE__ << std::endl;
+        if(code._loc2Type == 1){
+            moveToTemp(tempReg2, varLoc2);
+            output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" $"<<tempReg2<< "# at " << __LINE__ << std::endl;
+        } else {
+            output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" "<<code._locInt2<< "# at " << __LINE__ << std::endl;
+        }
+
     } else if(code._symProperty == 1){
-        output_mips<<"move $"<<tempReg3<<" $"<<tempReg1<<std::endl;
+        if(code._loc1Type == 1){
+            moveToTemp(tempReg3, varLoc1);
+        } else {
+            output_mips<<"li $"<<tempReg3<<" "<<code._locInt1<<std::endl;
+        }
     } else{
         output_mips<<"wrong sym in arr get!!!"<<std::endl;
     }
@@ -746,48 +842,67 @@ void g_arr_ass(){
     std::string name0 = code._assName;
     std::string name1 = ":" + std::to_string(code._loc1);
     std::string name2 = ":" + std::to_string(code._loc2);
-    std::string name3 = ":" + std::to_string(code._arr_ass_regNum);
+    std::string name3 = ":" + std::to_string(code._arrAssValue._value);
 
     VarLoc varLoc0, varLoc1, varLoc2, varLoc3;
     if(generateFuncName == ":"){
         varLoc0 = globalLocAssign[myTolower(name0)];
-        varLoc1 = globalLocAssign[myTolower(name1)];
-        varLoc2 = globalLocAssign[myTolower(name2)];
-        if(globalLocAssign.count(name3) == 0){
-            globalLocAssign[name3] = assignNewLoc();
+        if(code._loc1Type == 1){
+            varLoc1 = globalLocAssign[myTolower(name1)];
         }
-        varLoc3 = globalLocAssign[name3];
+        if(code._loc2Type == 1){
+            varLoc2 = globalLocAssign[myTolower(name2)];
+        }
+        if(code._arrAssValue._type == 1){
+            varLoc3 = globalLocAssign[name3];
+        }
     } else {
         if(funcLocAssign.count(name0) != 0){
             varLoc0 = funcLocAssign[myTolower(name0)];
         } else if(globalLocAssign.count(name0) != 0){
             varLoc0 = globalLocAssign[myTolower(name0)];
         } else {
-            output_mips<<"12322222222222@"<<name0<<"@"<< "# at " << __LINE__ << std::endl;
+            std::cout<<name0<<":"<<"1231111111111"<< "# at " << __LINE__ << std::endl;
         }
-        varLoc1 = funcLocAssign[myTolower(name1)];
-        varLoc2 = funcLocAssign[myTolower(name2)];
-        if(funcLocAssign.count(name3) == 0){
-            funcLocAssign[name3] = assignNewLoc();
+        if(code._loc1Type == 1){
+            varLoc1 = funcLocAssign[myTolower(name1)];
         }
-        varLoc3 = funcLocAssign[name3];
+        if(code._loc2Type == 1){
+            varLoc2 = funcLocAssign[myTolower(name2)];
+        }
+        if(code._arrAssValue._type == 1){
+            varLoc3 = funcLocAssign[name3];
+        }
     }
 
-    moveToTemp(tempReg1, varLoc1);
-    moveToTemp(tempReg2, varLoc2);
 
-    if(code._symProperty == 2) {
-        output_mips << "mul $" << tempReg3 << " $" << tempReg1 << " " << code._length << "# at " << __LINE__
-                    << std::endl;
+    if(code._symProperty == 2){
+        if(code._loc1Type == 1){
+            moveToTemp(tempReg1, varLoc1);
+        } else {
+            output_mips<<"li $"<<tempReg1<<" "<<code._locInt1<<std::endl;
+        }
+        output_mips<<"mul $"<<tempReg3<<" $"<<tempReg1<<" "<<code._length<< "# at " << __LINE__ << std::endl;
         //mul t2 t1 length
-        output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" $"<<tempReg2<< "# at " << __LINE__ << std::endl;
+        if(code._loc2Type == 1){
+            moveToTemp(tempReg2, varLoc2);
+            output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" $"<<tempReg2<< "# at " << __LINE__ << std::endl;
+        } else {
+            output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" "<<code._locInt2<< "# at " << __LINE__ << std::endl;
+        }
+
     } else if(code._symProperty == 1){
-        output_mips<<"move $"<<tempReg3<<" $"<<tempReg1<<std::endl;
+        if(code._loc1Type == 1){
+            moveToTemp(tempReg3, varLoc1);
+        } else {
+            output_mips<<"li $"<<tempReg3<<" "<<code._locInt1<<std::endl;
+        }
     } else{
-        output_mips<<"wrong sym in arr ass!!!"<<std::endl;
+        output_mips<<"wrong sym in arr get!!!"<<std::endl;
     }
 
-    output_mips<<"sll $"<<tempReg3<<" $"<<tempReg3<<" "<<2<< "# at " << __LINE__ << std::endl;
+
+    output_mips<<"sll $"<<tempReg3<<" $"<<tempReg3<<" "<<2 << std::endl;
     output_mips<<"addu $"<<tempReg3<<" $"<<tempReg3<<" "<<varLoc0.num<< "# at " << __LINE__ << std::endl;
 
     if(funcLocAssign.count(name0) != 0){
@@ -798,7 +913,12 @@ void g_arr_ass(){
         output_mips<<"!!!!!!!!!!!!!!!!!!!!1"<< "# at " << __LINE__ << std::endl;
     }
 
-    moveToTemp(tempReg1, varLoc3);
+    if(code._arrAssValue._type == 1){
+        moveToTemp(tempReg1, varLoc3);
+    } else {
+        output_mips<<"li $"<<tempReg1<<" "<<code._arrAssValue._value<<std::endl;
+    }
+
     output_mips<<"sw $"<<tempReg1<<" 0($"<<tempReg3<<")"<< "# at " << __LINE__ << std::endl;
     freeTempReg(toFree);
 }
@@ -880,6 +1000,8 @@ void moveFromTemp(VarLoc varLoc, int tempNum){
         output_mips<<"sw $"<<tempNum<<" "<<varLoc.num<<"($gp)"<< "# at " << __LINE__ << std::endl;
     } else if(varLoc.loc_type == 4){
         output_mips<<"sw $"<<tempNum<<" "<<varLoc.num<<"($sp)"<< "# at " << __LINE__ << std::endl;
+    } else {
+        output_mips<<"wrong varloc in moveFromTemp!"<<std::endl;
     }
 }
 

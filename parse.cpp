@@ -186,7 +186,13 @@ void parse_assign_sent(){
         newIntermediateCode = IntermediateCode();//??????????????????
         parse_expression();
         newIntermediateCode = ICodesStack.top();
-        newIntermediateCode._assExpResReg = expRegNum;
+
+        if(ifExpIsCon == 1){
+            newIntermediateCode._assValue = Value(2, expValue);
+        } else {
+            newIntermediateCode._assValue = Value(1, expRegNum);
+        }
+
         ICodesStack.pop();
         addToICodes();
     } else if(symbol_p == LBRACK){
@@ -199,7 +205,15 @@ void parse_assign_sent(){
 
         newIntermediateCode = ICodesStack.top();
         ICodesStack.pop();
-        newIntermediateCode._loc1 = expRegNum;
+
+        if(ifExpIsCon == 1){
+            newIntermediateCode._loc1Type = 2;
+            newIntermediateCode._locInt1 = expValue;
+        } else {
+            newIntermediateCode._loc1Type = 1;
+            newIntermediateCode._loc1 = expRegNum;
+        }
+
 
         if(temp != INT && temp != CONST_INT){
             addError("i", line_p);
@@ -220,9 +234,15 @@ void parse_assign_sent(){
 
             newIntermediateCode = ICodesStack.top();
             ICodesStack.pop();
-            newIntermediateCode._loc2 = expRegNum;
+            if(ifExpIsCon == 1){
+                ifExpIsCon = 0;
+                newIntermediateCode._loc2Type = 2;
+                newIntermediateCode._locInt2 = expValue;
+            } else {
+                newIntermediateCode._loc2Type = 1;
+                newIntermediateCode._loc2 = expRegNum;
+            }
 
-            std::cout<<"@"<<newIntermediateCode._assName<<" # ";
             if(funcSigTabMap[myTolower(func_name)].count(myTolower(newIntermediateCode._assName)) != 0) {
                 newIntermediateCode._length = funcSigTabMap[myTolower(func_name)][myTolower(newIntermediateCode._assName)]._dem_num2;
             } else if(globalSigTab.count(myTolower(newIntermediateCode._assName)) != 0){
@@ -230,7 +250,6 @@ void parse_assign_sent(){
             } else {
                 std::cout<<"wrong when find length! in ass"<<std::endl;
             }
-            std::cout<<"length = "<<newIntermediateCode._length<<std::endl;
             ICodesStack.push(newIntermediateCode);
 
             if(temp != INT && temp != CONST_INT){
@@ -247,7 +266,14 @@ void parse_assign_sent(){
 
             newIntermediateCode = ICodesStack.top();
             ICodesStack.pop();
-            newIntermediateCode._arr_ass_regNum = expRegNum;
+
+            if(ifExpIsCon == 1){
+                ifExpIsCon = 0;
+                newIntermediateCode._arrAssValue = Value(2, expValue);
+            } else {
+                newIntermediateCode._arrAssValue = Value(1, expRegNum);
+            }
+
             addToICodes();
         } else if(symbol_p == ASSIGN){
             ICodesStack.push(newIntermediateCode);
@@ -257,7 +283,13 @@ void parse_assign_sent(){
 
             newIntermediateCode = ICodesStack.top();
             ICodesStack.pop();
-            newIntermediateCode._arr_ass_regNum = expRegNum;
+
+            if(ifExpIsCon == 1){
+                ifExpIsCon = 0;
+                newIntermediateCode._arrAssValue = Value(2, expValue);
+            } else {
+                newIntermediateCode._arrAssValue = Value(1, expRegNum);
+            }
             addToICodes();
         } else error_parse();
     } else error_parse();
@@ -340,14 +372,25 @@ void parse_print_sent(){
             newIntermediateCode._priExpType = parse_expression();
             newIntermediateCode._interSym = I_PRINTF;
             newIntermediateCode._symProperty = 2;
-            newIntermediateCode._priExpResReg = expRegNum;//NOLINT
+            if(ifExpIsCon == 1){
+                ifExpIsCon = 0;
+                newIntermediateCode._priValue = Value(2, expValue);
+            } else {
+                newIntermediateCode._priValue = Value(1, expRegNum);
+            }
+
             addToICodes();
         }
     }else{
         newIntermediateCode._priExpType = parse_expression();
         newIntermediateCode._interSym = I_PRINTF;
         newIntermediateCode._symProperty = 2;
-        newIntermediateCode._priExpResReg = expRegNum;//NOLINT
+        if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
+            newIntermediateCode._priValue = Value(2, expValue);
+        } else {
+            newIntermediateCode._priValue = Value(1, expRegNum);
+        }
         addToICodes();
     }
 
@@ -381,15 +424,22 @@ void parse_return_sent(){
         } else {
             get_next_token();
         }
-        newIntermediateCode._interSym = I_CAL;
-        newIntermediateCode._cal1Type = 1;
-        newIntermediateCode._reg1 = expRegNum;
-        newIntermediateCode._cal2Type = 4;
-        newIntermediateCode._int2 = 0;
-        newIntermediateCode._resType = 2;
-        newIntermediateCode._resReg2 = 2;
-        newIntermediateCode._symProperty = 1;
-        addToICodes();
+        if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
+            newIntermediateCode._interSym = I_CODE;
+            newIntermediateCode._code = "li $2 " + std::to_string(expValue);
+            addToICodes();
+        } else {
+            newIntermediateCode._interSym = I_CAL;
+            newIntermediateCode._cal1Type = 1;
+            newIntermediateCode._reg1 = expRegNum;
+            newIntermediateCode._cal2Type = 4;
+            newIntermediateCode._int2 = 0;
+            newIntermediateCode._resType = 2;
+            newIntermediateCode._resReg2 = 2;
+            newIntermediateCode._symProperty = 1;
+            addToICodes();
+        }
 
     } else {
         newIntermediateCode._interSym = I_CODE;

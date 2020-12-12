@@ -112,6 +112,20 @@ public:
     }
 };
 
+class Value{
+public :
+    int _type;//1:reg 2:con
+
+    int _value;
+
+    Value(){};
+
+    Value(int type, int arg2){
+        _type = type;
+        _value = arg2;
+    }
+};
+
 class IntermediateCode{
 public:
     INTER_SYM _interSym;
@@ -138,20 +152,25 @@ public:
 
     //arr_get
     //用上面的名字 & vcType
+    int _loc1Type;//1: reg 2:int
     int _loc1;//a[!]
+    int _locInt1;
+
+    int _loc2Type;
     int _loc2;//a[][!]
+    int _locInt2;
     int _length;//a[][2]
     int _ansNum;
 
     //arr_ass
     //上面的_loc1 _loc2 _length assType
-    int _arr_ass_regNum;
+    Value _arrAssValue;
 
 
     //printf
     int _printfType;
     std::string _priStr;
-    int _priExpResReg;//NOLINT
+    Value _priValue;
     SIG_SYM _priExpType;//NOLINT
 
     //scanf
@@ -161,12 +180,13 @@ public:
     //assign
     std::string _assName;
     SIG_SYM _assType;
-    int _assExpResReg;//NOLINT
+    Value _assValue;
 
     //cal
     int _resRegNum;
     int _resReg2;
     int _resType;//1:temp 2:固定寄存器
+
     int _cal1Type;//1:reg 2:iden 3:char 4:int 5:固定寄存器
     int _cal2Type;//same with above
     int _reg1;
@@ -174,6 +194,7 @@ public:
     char _ch1;
     int _int1;
     int _sReg1;
+
     int _reg2;
     std::string _iden2;
     char _ch2;
@@ -182,8 +203,8 @@ public:
 
     //while & if
     int _judgeType;//1:>= 2:> 3:<= 4:< 5:== 6:!=
-    int _judgeReg1;
-    int _judgeReg2;
+    Value _judgeValue1;
+    Value _judgeValue2;
     int _labelStart;//if: no use
     int _labelEnd;//if: no use
 
@@ -200,7 +221,7 @@ public:
     //条件使用上面的
 
     //switch
-    int _switchReg;
+    Value _switchValue;
     SIG_SYM _swType;
     int _switchEndLabel;
 
@@ -211,7 +232,7 @@ public:
     //func_call
     std::string _funcCallName;
     int _returnReg;//$v0 = $2
-    std::vector<int>_paraRegNum;
+    std::vector<Value>_paraRegNum;
     std::vector<SIG_SYM>_paraType;
 
     //func_call_end
@@ -275,6 +296,8 @@ extern std::stack<IntermediateCode> ICodesStack;
 extern int regNum;
 
 extern int expRegNum;
+extern int ifExpIsCon;
+extern int expValue;
 
 //get MIPS
 extern int strCount;

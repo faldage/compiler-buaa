@@ -67,7 +67,13 @@ void parse_cond_sent(){
 void parse_condition(){
     //t2<<"parse_condition"<<std::endl;
     SIG_SYM temp1 = parse_expression();
-    int exp1 = expRegNum;
+    Value tempExpValue1;
+    if(ifExpIsCon == 1){
+        tempExpValue1 = Value(2, expValue);
+    } else {
+        tempExpValue1 = Value(1, expRegNum);
+    }
+    //int exp1 = expRegNum;
 
     int relation;
     //1:>= 2:> 3:<= 4:< 5:== 6:!=
@@ -95,11 +101,17 @@ void parse_condition(){
     }
     parse_relation();
     SIG_SYM temp2 = parse_expression();
+    Value tempExpValue2;
+    if(ifExpIsCon == 1){
+        tempExpValue2 = Value(2, expValue);
+    } else {
+        tempExpValue2 = Value(1, expRegNum);
+    }
     newIntermediateCode = ICodesStack.top();
     ICodesStack.pop();
     newIntermediateCode._judgeType = relation;
-    newIntermediateCode._judgeReg1 = exp1;
-    newIntermediateCode._judgeReg2 = expRegNum;
+    newIntermediateCode._judgeValue1 = tempExpValue1;
+    newIntermediateCode._judgeValue2 = tempExpValue2;
 
     if((temp1 != INT && temp1 != CONST_INT)|| (temp2 != INT && temp2 != CONST_INT)){
         addError("f", line_p);
@@ -164,7 +176,12 @@ void parse_loop_sent() {
         ICodesStack.pop();
         newIntermediateCode._interSym = I_ASSIGN;
         newIntermediateCode._assName = newIntermediateCode._loopName1;
-        newIntermediateCode._assExpResReg = expRegNum;
+        if(ifExpIsCon == 1){
+            newIntermediateCode._assValue = Value(2, expValue);
+        } else {
+            newIntermediateCode._assValue = Value(1, expRegNum);
+        }
+
         addToICodes();
 
         //newIntermediateCode._initialReg = expRegNum;
@@ -249,7 +266,7 @@ void parse_loop_sent() {
 
         newIntermediateCode._interSym = I_ASSIGN;
         newIntermediateCode._assName = intermediateCodes[tempNum]._loopName2;
-        newIntermediateCode._assExpResReg = tempResReg;
+        newIntermediateCode._assValue = Value(1, tempResReg);
         addToICodes();
 
         newIntermediateCode._interSym = I_J;

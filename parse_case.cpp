@@ -18,7 +18,16 @@ void parse_case_sent(){
     SIG_SYM temp = parse_expression();
 
     newIntermediateCode._interSym = I_SWITCH;
-    newIntermediateCode._switchReg = expRegNum;
+
+    Value tempValue;
+    if(ifExpIsCon == 1){
+        ifExpIsCon = 0;
+        tempValue = Value(2, expValue);
+    } else{
+        tempValue = Value(1, expRegNum);
+    }
+    newIntermediateCode._switchValue = tempValue;
+
     newIntermediateCode._switchEndLabel = labelCount;
     newIntermediateCode._swType = temp;
     endLabelStack.push(labelCount);
@@ -34,7 +43,7 @@ void parse_case_sent(){
     if(symbol_p != LBRACE)error_parse();
     get_next_token();
 
-    parse_case_tab(temp, expRegNum);
+    parse_case_tab(temp, tempValue);
     parse_default();
 
     newIntermediateCode._interSym = I_LABEL;
@@ -47,11 +56,11 @@ void parse_case_sent(){
     myPrint("<情况语句>");
 }
 
-void parse_case_tab(SIG_SYM sig_sym, int lastExpRegNum){
+void parse_case_tab(SIG_SYM sig_sym, Value lastExpValue){
     newIntermediateCode._interSym = I_SWITCH_IF;
     newIntermediateCode._nextIfLabel = labelCount;
     newIntermediateCode._swType = sig_sym;
-    newIntermediateCode._switchReg = lastExpRegNum;
+    newIntermediateCode._switchValue = lastExpValue;
 
     labelStack.push(labelCount);
     labelCount++;
@@ -72,7 +81,7 @@ void parse_case_tab(SIG_SYM sig_sym, int lastExpRegNum){
         newIntermediateCode._interSym = I_SWITCH_IF;
         newIntermediateCode._nextIfLabel = labelCount;
         newIntermediateCode._swType = sig_sym;
-        newIntermediateCode._switchReg = lastExpRegNum;
+        newIntermediateCode._switchValue = lastExpValue;
         labelStack.push(labelCount);
         labelCount++;
 

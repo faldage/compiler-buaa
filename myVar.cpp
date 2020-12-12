@@ -71,6 +71,8 @@ IntermediateCode newIntermediateCode;//NOLINT
 std::stack<IntermediateCode> ICodesStack;//NOLINT
 int regNum = 0;
 int expRegNum = 0;
+int ifExpIsCon = 0;
+int expValue = 0;
 
 //getMIPS
 int strCount = 0;

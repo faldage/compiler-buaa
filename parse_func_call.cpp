@@ -80,7 +80,13 @@ void parse_val_para_tab(){
         newIntermediateCode = ICodesStack.top();
         ICodesStack.pop();
         newIntermediateCode._paraRegNum.clear();
-        newIntermediateCode._paraRegNum.push_back(expRegNum);
+        if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
+            newIntermediateCode._paraRegNum.push_back(Value(2, expValue));
+        } else {
+            newIntermediateCode._paraRegNum.push_back(Value(1, expRegNum));
+        }
+
         ICodesStack.push(newIntermediateCode);
 
         if(temp_list[temp_list.size() - 1] != NONETYPE){
@@ -92,7 +98,12 @@ void parse_val_para_tab(){
             num++;
             newIntermediateCode = ICodesStack.top();
             ICodesStack.pop();
-            newIntermediateCode._paraRegNum.push_back(expRegNum);
+            if(ifExpIsCon == 1){
+                ifExpIsCon = 0;
+                newIntermediateCode._paraRegNum.push_back(Value(2, expValue));
+            } else {
+                newIntermediateCode._paraRegNum.push_back(Value(1, expRegNum));
+            }
             ICodesStack.push(newIntermediateCode);
         }
     }

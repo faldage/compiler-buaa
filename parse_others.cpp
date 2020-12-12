@@ -18,10 +18,6 @@ void addToICodes(){
 
     newIntermediateCode._paraRegNum.clear();
     newIntermediateCode._paraType.clear();
-
-    if(intermediateCodes.size() == 129){
-        std::cout<<"!"<<std::endl;
-    }
 }
 
 bool isSameType1(SIG_SYM sig1, SIG_SYM sig2){

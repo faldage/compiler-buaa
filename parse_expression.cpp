@@ -12,16 +12,19 @@
 
 int itemReg;
 int factorReg;
+int ifItemIsCon = 0;
+int itemValue = 0;
 int ifFactorIsCon = 0;
 int factorValue = 0;
+std::vector<Temp> Items;
+
+std::stack<std::vector<Temp>>ItemsStack;
 
 SIG_SYM parse_expression(){
+    ifExpIsCon = 0;
+    expValue = 0;
     SIG_SYM res = NONETYPE;
-    /*
-    int thisExpRegNum = regNum;
-    regNum++;
-    funcAddSpaceForSp();
-
+/*
     int tempCal = 1;
     if(symbol_p == PLUS || symbol_p == MINU){
         if(symbol_p == PLUS){
@@ -55,17 +58,16 @@ SIG_SYM parse_expression(){
         get_next_token();
     }
     SIG_SYM temp = parse_item();
-    int thisExpRegNum = itemReg;
-    if(tempCal == 2){
-        newIntermediateCode._interSym = I_CAL;
-        newIntermediateCode._symProperty = tempCal;
-        newIntermediateCode._resType = 1;
-        newIntermediateCode._resRegNum = thisExpRegNum;
-        newIntermediateCode._cal1Type = 4;
-        newIntermediateCode._int1 = 0;
-        newIntermediateCode._cal2Type = 1;
-        newIntermediateCode._reg2 = thisExpRegNum;
-        addToICodes();
+    int thisExpRegNum, thisExpValue = 0;
+    if(ifItemIsCon == 1){
+        ifItemIsCon = 0;
+        if(tempCal == 1){
+            thisExpValue += itemValue;
+        } else {
+            thisExpValue -= itemValue;
+        }
+    } else {
+        Items.push_back(Temp(tempCal, 1, itemReg));
     }
 
     if(res == NONETYPE){
@@ -80,23 +82,65 @@ SIG_SYM parse_expression(){
         }
         res = INT;
         get_next_token();
-        parse_item();
 
-        newIntermediateCode = IntermediateCode(I_CAL);
-        newIntermediateCode._symProperty = tempCal;
-        newIntermediateCode._resRegNum = thisExpRegNum;
-        newIntermediateCode._resType = 1;
-        newIntermediateCode._cal1Type = 1;
-        newIntermediateCode._reg1 = thisExpRegNum;
-        newIntermediateCode._cal2Type = 1;
-        newIntermediateCode._reg2 = itemReg;
-        addToICodes();
+        ItemsStack.push(Items);
+        Items.clear();
+        parse_item();
+        Items = ItemsStack.top();
+        ItemsStack.pop();
+
+        if(ifItemIsCon == 1){
+            ifItemIsCon = 0;
+            if(tempCal == 1){
+                thisExpValue += itemValue;
+            } else {
+                thisExpValue -= itemValue;
+            }
+        } else {
+            Items.push_back(Temp(tempCal, 1, itemReg));
+        }
     }
+
+    if(Items.size() == 0){
+        ifExpIsCon = 1;
+        expValue = thisExpValue;
+    } else {
+        expRegNum = Items[0]._regNum;
+        //expRegNum = regNum;
+        //regNum++;
+        //funcAddSpaceForSp();
+        if(thisExpValue != 0 || Items[0]._cal != 1){
+            newIntermediateCode = IntermediateCode(I_CAL);
+            newIntermediateCode._symProperty = Items[0]._cal;
+            newIntermediateCode._resRegNum = expRegNum;
+            newIntermediateCode._resType = 1;
+            newIntermediateCode._cal2Type = 1;
+            newIntermediateCode._reg2 = Items[0]._regNum;
+            newIntermediateCode._cal1Type = 4;
+            newIntermediateCode._int1 = thisExpValue;
+            addToICodes();
+        }
+
+        for(int i = 1; i < Items.size(); i++){
+            newIntermediateCode = IntermediateCode(I_CAL);
+            newIntermediateCode._symProperty = Items[i]._cal;
+            newIntermediateCode._resRegNum = expRegNum;
+            newIntermediateCode._resType = 1;
+            newIntermediateCode._cal1Type = 1;
+            newIntermediateCode._reg1 = expRegNum;
+            newIntermediateCode._cal2Type = 1;
+            newIntermediateCode._reg2 = Items[i]._regNum;
+            addToICodes();
+        }
+    }
+
     myPrint("<表达式>");
-    expRegNum = thisExpRegNum;
+    Items.clear();
     return res;
 }
 SIG_SYM parse_item(){
+    ifItemIsCon = 0;
+    itemValue = 0;
     int tempCal;
     /*
     int thisItemRegNum = regNum;
@@ -116,8 +160,12 @@ SIG_SYM parse_item(){
     */
     SIG_SYM res = parse_factor();
     int thisItemRegNum;
+
     if(ifFactorIsCon == 1){
         ifFactorIsCon = 0;
+        itemValue = factorValue;
+        ifItemIsCon = 1;
+
         thisItemRegNum = regNum;
         regNum++;
         funcAddSpaceForSp();
@@ -137,6 +185,7 @@ SIG_SYM parse_item(){
     }
 
     while(symbol_p == MULT || symbol_p == DIV){
+        ifItemIsCon = 0;
         if(symbol_p == MULT){
             tempCal  = 3;
         } else {
@@ -161,6 +210,11 @@ SIG_SYM parse_item(){
             newIntermediateCode._reg2 = factorReg;
         }
         addToICodes();
+    }
+    if(ifItemIsCon == 1){
+        regNum--;
+        funcSubSpaceForSp();
+        intermediateCodes.pop_back();
     }
     myPrint("<项>");
     itemReg = thisItemRegNum;
@@ -199,15 +253,18 @@ SIG_SYM parse_factor(){
         } else {
             get_next_token();
         }
-        newIntermediateCode._cal2Type = 1;
-        newIntermediateCode._reg2 = expRegNum;
-        newIntermediateCode._interSym = I_CAL;
-        newIntermediateCode._symProperty = 1;
-        newIntermediateCode._resType = 1;
-        newIntermediateCode._resRegNum = thisFactorRegNum;
-        newIntermediateCode._cal1Type = 4;
-        newIntermediateCode._int1 = 0;
-        addToICodes();
+
+        if(ifExpIsCon == 1){
+            regNum--;
+            funcSubSpaceForSp();
+
+            ifFactorIsCon = 1;
+            factorValue = int(expValue);
+        } else {
+            ifFactorIsCon = 0;
+            thisFactorRegNum = expRegNum;
+        }
+
     } else if(symbol_p == IDENFR){
         newIntermediateCode._name = name_p;
         newIntermediateCode._funcCallName = name_p;
@@ -255,7 +312,15 @@ SIG_SYM parse_factor(){
                 ICodesStack.pop();
                 newIntermediateCode._interSym = I_ARR_GET;
                 newIntermediateCode._symProperty = 2;
-                newIntermediateCode._loc1 = expRegNum;
+                if(ifExpIsCon == 1){
+                    ifExpIsCon = 0;
+                    newIntermediateCode._loc1Type = 2;
+                    newIntermediateCode._locInt1 = expValue;
+                } else {
+                    newIntermediateCode._loc1Type = 1;
+                    newIntermediateCode._loc1 = expRegNum;
+                }
+
 
                 if(funcSigTabMap[myTolower(func_name)].count(myTolower(newIntermediateCode._name)) != 0) {
                     newIntermediateCode._length = funcSigTabMap[myTolower(func_name)][myTolower(newIntermediateCode._name)]._dem_num2;
@@ -280,7 +345,16 @@ SIG_SYM parse_factor(){
 
                 newIntermediateCode = ICodesStack.top();
                 ICodesStack.pop();
-                newIntermediateCode._loc2 = expRegNum;
+
+                if(ifExpIsCon == 1){
+                    ifExpIsCon = 0;
+                    newIntermediateCode._loc2Type = 2;
+                    newIntermediateCode._locInt2 = expValue;
+                } else {
+                    newIntermediateCode._loc2Type = 1;
+                    newIntermediateCode._loc2 = expRegNum;
+                }
+
                 newIntermediateCode._ansNum = thisFactorRegNum;
                 addToICodes();
             }else{
@@ -288,7 +362,14 @@ SIG_SYM parse_factor(){
                 ICodesStack.pop();
                 newIntermediateCode._symProperty = 1;
                 newIntermediateCode._interSym = I_ARR_GET;
-                newIntermediateCode._loc1 = expRegNum;
+                if(ifExpIsCon == 1){
+                    ifExpIsCon = 0;
+                    newIntermediateCode._loc1Type = 2;
+                    newIntermediateCode._locInt1 = expValue;
+                } else {
+                    newIntermediateCode._loc1Type = 1;
+                    newIntermediateCode._loc1 = expRegNum;
+                }
                 newIntermediateCode._ansNum = thisFactorRegNum;
                 addToICodes();
             }

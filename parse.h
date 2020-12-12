@@ -61,7 +61,7 @@ void parse_condition();
 void parse_loop_sent();
 int parse_step_length();
 void parse_case_sent();
-void parse_case_tab(SIG_SYM sig_sym, int lastExpRegNum);
+void parse_case_tab(SIG_SYM sig_sym, Value lastExpValue);
 void parse_case_sub_sent(SIG_SYM sig_sym);
 void parse_default();
 SIG_SYM parse_func_call_with_return();
