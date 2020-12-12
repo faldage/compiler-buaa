@@ -223,6 +223,7 @@ SIG_SYM parse_item(){
 SIG_SYM parse_factor(){
     int thisFactorRegNum = regNum;
     ifFactorIsCon = 0;
+    factorValue = 0;
     regNum++;
     funcAddSpaceForSp();
 
@@ -255,6 +256,7 @@ SIG_SYM parse_factor(){
         }
 
         if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
             regNum--;
             funcSubSpaceForSp();
 

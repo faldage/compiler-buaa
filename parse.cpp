@@ -188,6 +188,7 @@ void parse_assign_sent(){
         newIntermediateCode = ICodesStack.top();
 
         if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
             newIntermediateCode._assValue = Value(2, expValue);
         } else {
             newIntermediateCode._assValue = Value(1, expRegNum);
@@ -207,6 +208,7 @@ void parse_assign_sent(){
         ICodesStack.pop();
 
         if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
             newIntermediateCode._loc1Type = 2;
             newIntermediateCode._locInt1 = expValue;
         } else {

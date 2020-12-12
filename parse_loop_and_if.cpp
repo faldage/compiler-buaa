@@ -69,6 +69,7 @@ void parse_condition(){
     SIG_SYM temp1 = parse_expression();
     Value tempExpValue1;
     if(ifExpIsCon == 1){
+        ifExpIsCon = 0;
         tempExpValue1 = Value(2, expValue);
     } else {
         tempExpValue1 = Value(1, expRegNum);
@@ -103,6 +104,7 @@ void parse_condition(){
     SIG_SYM temp2 = parse_expression();
     Value tempExpValue2;
     if(ifExpIsCon == 1){
+        ifExpIsCon = 0;
         tempExpValue2 = Value(2, expValue);
     } else {
         tempExpValue2 = Value(1, expRegNum);
@@ -177,6 +179,7 @@ void parse_loop_sent() {
         newIntermediateCode._interSym = I_ASSIGN;
         newIntermediateCode._assName = newIntermediateCode._loopName1;
         if(ifExpIsCon == 1){
+            ifExpIsCon = 0;
             newIntermediateCode._assValue = Value(2, expValue);
         } else {
             newIntermediateCode._assValue = Value(1, expRegNum);
