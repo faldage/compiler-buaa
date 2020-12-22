@@ -10,11 +10,11 @@
 
 using namespace std;
 
-//void error_print(){
-//    for(Error error: errors){
- //       output_error <<error._line<<" " << error._error_type << std::endl;
-  //  }
-//}
+void error_print(){
+    for(Error error: errors){
+        output_error <<error._line<<" " << error._error_type << std::endl;
+    }
+}
 
 void printINTER(){
     std::cout<<"stringList"<<endl;
@@ -121,35 +121,12 @@ int main() {
     //if(errors.size() != 0){
     //    printf("some errors!\n");
     //} else {
-    printINTER();
+    //printINTER();
 
-    std::map<std::string, Signal>::iterator iter3;
-    for(iter3 = globalSigTab.begin(); iter3 != globalSigTab.end(); iter3++) {
-        std::cout << iter3->first << "!_________" << std::endl;
-        std::vector<std::string> temp1 = iter3->second._para_tab_name;
-        for(std::string s: temp1){
-            std::cout<<s<<std::endl;
-        }
-
+    if(errors.size() != 0){
+        error_print();
+    } else {
+        generate();
     }
-
-    //}
-    /*
-    std::cout<<"_______________"<<std::endl;
-    map<std::string, Signal>::iterator iter;
-    for(iter = globalSigTab.begin(); iter != globalSigTab.end(); iter++) {
-        std::cout << iter->first << ":"<< iter->second._name << std::endl;
-    }
-    std::map<std::string, Signal>::iterator iter2;
-    std::map<std::string, std::map<std::string, Signal>>::iterator iter3;
-    for(iter3 = funcSigTabMap.begin(); iter3 != funcSigTabMap.end(); iter3++) {
-        std::cout << iter3->first << "!_________" << std::endl;
-        for(iter2 = funcSigTabMap[iter3->first].begin(); iter2 != funcSigTabMap[iter3->first].end(); iter2++){
-            std::cout << iter2->first << std::endl;
-        }
-    }
-    std::cout<<"===========generate============"<<std::endl;
-    */
-    generate();
     return 0;
 }

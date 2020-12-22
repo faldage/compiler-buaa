@@ -50,7 +50,7 @@ std::map<std::string, Signal>globalSigTab;
 std::map<std::string, Signal>funcSigTab;
 std::map<std::string, std::map<std::string, Signal>>funcSigTabMap;
 
-//std::ofstream output_error("error.txt");//NOLINT
+std::ofstream output_error("error.txt");//NOLINT
 
 std::vector<IntermediateCode> intermediateCodes;
 
