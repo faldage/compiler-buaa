@@ -105,7 +105,11 @@ void generate(){
         } else {
            std::cout<<"error in generate mips!"<< "# at " << __LINE__ << std::endl;
         }
-        get_next_code();
+        if(loc_g == intermediateCodes.size()){
+            break;
+        } else {
+            get_next_code();
+        }
     }
 }
 
